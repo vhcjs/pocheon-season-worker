@@ -700,5 +700,7 @@ async function cancelAppByAdmin(i) {
 function closeInvoice(){ document.getElementById('invoiceModal').style.display = 'none'; }
 function clearData(){ if(confirm('정말 전체 데이터를 초기화하시겠습니까?')){ localStorage.clear(); location.reload(); } }
 </script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://pocheon-season-worker.vercel.app/supabase-sync.js"></script>
 </body>
 </html>
