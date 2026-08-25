@@ -160,22 +160,16 @@ function showAlert(icon, title, body, callback = null) {
 function closeAlertAndReset() { document.getElementById('alertModal').style.display = 'none'; if (pendingResetCallback) { pendingResetCallback(); pendingResetCallback = null; } }
 
 async function apiFetch(endpoint, method = 'GET', body = null) {
-  try {
-    const options = { method, headers: { 'Content-Type': 'application/json' } };
-    if (body) options.body = JSON.stringify(body);
-    const res = await fetch(`${API_BASE_URL}${endpoint}`, options);
-    if (!res.ok) throw new Error();
-    return await res.json();
-  } catch (e) {
-    let d = JSON.parse(localStorage.getItem(KEY) || '{"apps":[]}');
-    if (endpoint === '/apps' && method === 'GET') return d.apps || [];
-    if (endpoint === '/apps' && method === 'POST') { d.apps.push(body); localStorage.setItem(KEY, JSON.stringify(d)); return { success: true }; }
-    if (endpoint.startsWith('/apps/') && method === 'PUT') {
-      const idx = parseInt(endpoint.split('/')[2]);
-      if (d.apps[idx]) { Object.assign(d.apps[idx], body); localStorage.setItem(KEY, JSON.stringify(d)); }
-      return { success: true };
+    try {
+        const options = { method, headers: { 'Content-Type': 'application/json' } };
+        if (body) options.body = JSON.stringify(body);
+        const res = await fetch(`${API_BASE_URL}${endpoint}`, options);
+        if (!res.ok) throw new Error(`서버 에러 (${res.status})`);
+        return await res.json();
+    } catch (e) {
+        console.error('API 통신 에러:', e);
+        throw e;
     }
-  }
 }
 
 // 해당 날짜의 실제 '남은 신청가능 인원 수'를 계산해주는 함수
