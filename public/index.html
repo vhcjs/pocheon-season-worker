@@ -1,149 +1,392 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ko">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>포천시 계절근로자 인력지원 신청 시스템</title>
-    <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Noto Sans KR', sans-serif; }
-        body { background-color: #f4f6f9; color: #333; line-height: 1.6; padding: 20px; }
-        .container { max-width: 600px; margin: 0 auto; background: #fff; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); }
-        h1 { font-size: 1.5rem; text-align: center; color: #1e3a8a; margin-bottom: 20px; }
-        .notice-box { background: #eff6ff; border-left: 4px solid #2563eb; padding: 12px 15px; margin-bottom: 20px; border-radius: 4px; font-size: 0.9rem; color: #1e40af; }
-        .form-group { margin-bottom: 15px; }
-        label { display: block; font-weight: bold; margin-bottom: 5px; font-size: 0.95rem; }
-        input, select, textarea { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 1rem; }
-        button { width: 100%; padding: 12px; background: #2563eb; color: #fff; border: none; border-radius: 6px; font-size: 1.05rem; font-weight: bold; cursor: pointer; transition: 0.2s; }
-        button:hover { background: #1d4ed8; }
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; }
-        .modal-content { background: #fff; padding: 20px; border-radius: 8px; max-width: 400px; width: 90%; text-align: center; }
-        .modal-btn { margin-top: 15px; background: #2563eb; color: white; padding: 8px 16px; border: none; border-radius: 4px; cursor: pointer; }
-    </style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>포천시 위탁형 계절근로자 신청</title>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<style>
+*{box-sizing:border-box} body{margin:0;font-family:Arial,"Noto Sans KR",sans-serif;background:#eef5fb;color:#111}
+button,input,textarea,select{font:inherit} .app{max-width:1100px;margin:auto;background:#fff;min-height:100vh}
+header{height:70px;display:flex;align-items:center;justify-content:space-between;padding:0 22px;border-bottom:1px solid #ddd}
+.logo{font-weight:800;color:#168b43;font-size:18px}
+main{padding:28px 20px}.panel{max-width:760px;margin:auto}.title{text-align:center;font-size:28px;font-weight:800;margin:10px 0 28px}
+.card{border:1px solid #ddd;border-radius:14px;padding:18px;margin-bottom:16px;background:#fff;box-shadow:0 2px 8px #0000000a}
+.notice-card{background:#f0f9f3;border:1px solid #c8e6c9;border-left:5px solid #168b43}
+.notice-title{font-size:16px;font-weight:700;color:#168b43;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.notice-content{font-size:14px;color:#333;line-height:1.6;white-space:pre-line}
+label{display:block;font-weight:700;margin:0 0 8px}.field{margin-bottom:17px} input,textarea,select{width:100%;padding:13px;border:1px solid #d5d5d5;border-radius:8px;background:#fff} textarea{min-height:90px;resize:vertical}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:14px}.hint{font-size:13px;color:#777;margin-top:6px}.radio label{display:inline-flex;align-items:center;font-weight:400;margin-right:18px}.radio input{width:auto;margin-right:5px}
+.cal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;font-weight:700}
+.calendar{display:grid;grid-template-columns:repeat(7,1fr);border:1px solid #ddd}.calendar div{min-height:52px;border-right:1px solid #ddd;border-bottom:1px solid #ddd;padding:7px;font-size:13px}.calendar .head{background:#f5f5f5;font-weight:700;text-align:center;min-height:auto}.calendar .head:first-child{color:#e11}
+.day{cursor:pointer}.day.disabled{color:#bbb;background:#f7f7f7;cursor:not-allowed}.day.holiday{color:#e11;background:#fff5f5}.day.selected{background:#168b43;color:#fff!important}.count{font-size:11px;color:#2255aa;margin-top:5px}.selected .count{color:#fff}.disabled .count{color:#a9a9a9}
+.worker-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:9px}.worker{border:1px solid #ddd;border-radius:9px;padding:12px;cursor:pointer;background:#fff;transition:0.2s}.worker.selected{border:2px solid #168b43;background:#effbf3}.worker.locked{background:#f1f1f1;color:#aaa;cursor:not-allowed;border-color:#eee}.worker small{display:block;color:#666;margin-top:4px;font-size:12px}.worker.locked small{color:#aaa}
+.actions{display:flex;gap:10px}.primary,.secondary{border:0;border-radius:8px;padding:14px 18px;cursor:pointer;font-weight:700}.primary{background:#00a83b;color:#fff;flex:1}.secondary{background:#eee;color:#333}
+.status{padding:12px;border-radius:8px;background:#f3f8ff;margin:12px 0}
+.mini{padding:6px 12px;border:1px solid #ccc;background:#fff;border-radius:6px;cursor:pointer;font-weight:700;white-space:nowrap;display:inline-flex;align-items:center;justify-content:center;line-height:1.2;margin:2px 0;}
+.modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);align-items:center;justify-content:center;z-index:9999}
+.invoice-box{background:#fff;padding:30px;border-radius:12px;width:90%;max-width:800px;box-shadow:0 4px 20px rgba(0,0,0,0.2);max-height:90vh;overflow-y:auto}
+.alert-box{background:#fff;padding:32px 28px;border-radius:16px;width:90%;max-width:420px;text-align:center;box-shadow:0 10px 30px rgba(0,0,0,0.25)}
+.alert-icon{font-size:48px;margin-bottom:12px;display:block}
+.alert-title{font-size:20px;font-weight:800;color:#111;margin-bottom:8px}
+.alert-body{font-size:14px;color:#555;line-height:1.5;margin-bottom:24px}
+.callname-tag{display:inline-block;background:#e8f5e9;color:#08752f;font-weight:800;padding:2px 6px;border-radius:4px;border:1px solid #a5d6a7;font-size:13px;margin-right:4px;}
+@media(max-width:650px){header{padding:0 14px}.logo{font-size:15px}main{padding:20px 12px}.title{font-size:23px}.row{grid-template-columns:1fr}.worker-grid{grid-template-columns:1fr}.calendar div{min-height:48px;padding:5px;font-size:12px}.card{padding:15px}}
+</style>
 </head>
 <body>
-    <div class="container">
-        <h1>포천시 계절근로자 인력신청</h1>
-        
-        <div class="notice-box" id="noticeText">공지사항을 불러오는 중입니다...</div>
+<div class="app">
+<header><div class="logo">포천시 농업재단 영농인력지원팀</div><div id="clock"></div></header>
 
-        <form id="appForm">
-            <div class="form-group">
-                <label>농가명 (신청자명)</label>
-                <input type="text" id="farmName" required placeholder="예: 홍길동">
-            </div>
-            <div class="form-group">
-                <label>연락처</label>
-                <input type="tel" id="phone" required placeholder="예: 010-1234-5678">
-            </div>
-            <div class="form-group">
-                <label>작업 희망일</label>
-                <select id="workDate" required>
-                    <option value="">일정을 선택하세요</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label>신청 인원수 (명)</label>
-                <input type="number" id="workerCount" min="1" value="1" required>
-            </div>
-            <div class="form-group">
-                <label>비고 / 요청사항</label>
-                <textarea id="notes" rows="3" placeholder="필요한 작업 내용이나 요청사항을 적어주세요."></textarea>
-            </div>
-            <button type="submit">신청서 제출하기</button>
-        </form>
-    </div>
+<main><div class="panel">
+<div class="title">포천시 위탁형 계절근로자 신청</div>
 
-    <div class="modal" id="alertModal">
-        <div class="modal-content">
-            <p id="modalMsg"></p>
-            <button class="modal-btn" onclick="closeModal()">확인</button>
-        </div>
-    </div>
+<div class="card notice-card">
+  <div class="notice-title" id="displayNoticeTitle">📢공지사항</div>
+  <div class="notice-content" id="displayNoticeBody">공지사항을 불러오는 중입니다...</div>
+</div>
 
-    <script>
-        const API_BASE_URL = '/api';
+<div class="card">
+<div class="cal-header">
+  <button class="mini" onclick="changeMonth(-1)">◀ 이전달</button>
+  <span id="calTitle"></span>
+  <button class="mini" onclick="changeMonth(1)">다음달 ▶</button>
+</div>
+<div id="calendar" class="calendar"></div>
+<div class="hint">※ 신청가능인원 / 총인원 (일요일 및 공휴일은 휴무일입니다.)</div>
+</div>
 
-        function showAlert(msg) {
-            document.getElementById('modalMsg').innerText = msg;
-            document.getElementById('alertModal').style.display = 'flex';
-        }
+<div class="card">
+<div class="row">
+<div class="field"><label>농장주명</label><input id="farmerName" placeholder="농장주명을 입력하세요"></div>
+<div class="field"><label>전화번호</label><input id="phone" placeholder="010-0000-0000"></div>
+</div>
+<div class="field"><label>농지 주소</label><input id="address" placeholder="도로명 주소 또는 지번 주소를 입력하세요"></div>
+<div class="field"><label>작업 내용</label><textarea id="work" placeholder="예: 사과 적과 및 수확, 포장 작업"></textarea></div>
+<div class="field radio"><label>선호 성별</label>
+<label><input type="radio" name="gender" value="남성"> 남성</label>
+<label><input type="radio" name="gender" value="여성"> 여성</label>
+<label><input type="radio" name="gender" value="무관" checked> 무관</label></div>
 
-        function closeModal() {
-            document.getElementById('alertModal').style.display = 'none';
-        }
+<div class="field"><label>선호 근로자 <span class="hint">(이미 배정된 근로자는 선택할 수 없습니다.)</span></label>
+<div id="workers" class="worker-grid"></div></div>
 
-        async function apiFetch(endpoint, method = 'GET', body = null) {
-            try {
-                const options = { method, headers: { 'Content-Type': 'application/json' } };
-                if (body) options.body = JSON.stringify(body);
-                const res = await fetch(`${API_BASE_URL}${endpoint}`, options);
-                if (!res.ok) {
-                    const errData = await res.json().catch(() => ({}));
-                    throw new Error(errData.error || `서버 에러 (${res.status})`);
-                }
-                return await res.json();
-            } catch (e) {
-                console.error('API 통신 에러:', e);
-                throw e;
-            }
-        }
+<div class="field"><label>신청 인원</label><div class="actions"><button class="secondary" onclick="changeQty(-1)">−</button><input id="qty" value="1" readonly style="text-align:center"><button class="secondary" onclick="changeQty(1)">+</button></div></div>
+<div class="field"><label>기타 요청사항</label><textarea id="etc" placeholder="기타 요청사항을 작성해주세요"></textarea></div>
+<div class="status"><b>예상 신청금액 (1일 기본일당 기준)</b> <span style="float:right;font-size:20px" id="price">₩120,000</span></div>
+<div class="actions"><button class="primary" onclick="submitApplication()">신청하기</button><button class="secondary" onclick="lookup()">신청조회 및 취소</button></div>
+</div>
+</div></main>
+</div>
 
-        async function loadNotice() {
-            try {
-                const data = await apiFetch('/notice');
-                document.getElementById('noticeText').innerText = data.content || '등록된 공지사항이 없습니다.';
-            } catch (e) {
-                document.getElementById('noticeText').innerText = '공지사항을 불러올 수 없습니다.';
-            }
-        }
+<div id="invoiceModal" class="modal">
+  <div class="invoice-box">
+    <div id="invoiceContent"></div>
+    <div class="actions" style="margin-top:20px"><button class="secondary" onclick="closeInvoice()">닫기</button></div>
+  </div>
+</div>
 
-        async function loadSchedules() {
-            try {
-                const schedules = await apiFetch('/schedules');
-                const select = document.getElementById('workDate');
-                select.innerHTML = '<option value="">일정을 선택하세요</option>';
-                
-                schedules.forEach(item => {
-                    const opt = document.createElement('option');
-                    opt.value = item.date;
-                    if (item.is_closed) {
-                        opt.disabled = true;
-                        opt.textContent = `${item.date} (마감되었습니다)`;
-                    } else {
-                        opt.textContent = `${item.date} (신청 가능: ${item.remaining_workers}명)`;
-                    }
-                    select.appendChild(opt);
-                });
-            } catch (e) {
-                showAlert('일정 목록을 불러오지 못했습니다.');
-            }
-        }
+<div id="alertModal" class="modal">
+  <div class="alert-box">
+    <span class="alert-icon" id="alertIcon">✅</span>
+    <div class="alert-title" id="alertTitle">처리 완료</div>
+    <div class="alert-body" id="alertBody">요청하신 작업이 성공적으로 처리되었습니다.</div>
+    <button class="primary" style="width:100%" onclick="closeAlertAndReset()">확인</button>
+  </div>
+</div>
 
-        document.getElementById('appForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const farm_name = document.getElementById('farmName').value.trim();
-            const phone = document.getElementById('phone').value.trim();
-            const work_date = document.getElementById('workDate').value;
-            const worker_count = parseInt(document.getElementById('workerCount').value, 10);
-            const notes = document.getElementById('notes').value.trim();
+<script>
+const API_BASE_URL = '/api'; 
+const KEY = 'seasonWorkerPrototype_v1';
+const WORKER_KEY = 'seasonWorkers_master_v1';
+const NOTICE_KEY = 'seasonNotice_v1';
+const BASE_DAILY_PRICE = 120000;
+const DEADLINE_HOUR = 17;
 
-            if (!work_date) {
-                showAlert('작업 희망일을 선택해주세요.');
-                return;
-            }
+const HOLIDAYS = {
+  "2026-01-01": "신정", "2026-02-16": "설날 연휴", "2026-02-17": "설날", "2026-02-18": "설날 연휴",
+  "2026-03-01": "삼일절", "2026-03-02": "대체공휴일", "2026-05-05": "어린이날", "2026-05-24": "부처님오신날", "2026-05-25": "대체공휴일",
+  "2026-06-06": "현충일", "2026-08-15": "광복절", "2026-08-17": "대체공휴일", "2026-09-24": "추석 연휴", "2026-09-25": "추석",
+  "2026-09-26": "추석 연휴", "2026-10-03": "개천절", "2026-10-05": "대체공휴일", "2026-10-09": "한글날", "2026-12-25": "성탄절"
+};
 
-            try {
-                await apiFetch('/applications', 'POST', { farm_name, phone, work_date, worker_count, notes });
-                showAlert('신청이 성공적으로 접수되었습니다!');
-                document.getElementById('appForm').reset();
-                loadSchedules();
-            } catch (e) {
-                showAlert(e.message || '신청 접수 중 오류가 발생했습니다.');
-            }
-        });
+const defaultNotice = { title: '📢 공지사항', body: '• 일요일 및 공휴일은 근로자 휴무일로 신청이 불가능합니다.\n• 기본 하루 일당은 120,000원입니다.\n• 1일 기본 근로시간은 10시간입니다.\n• 당일 및 이전 날짜는 예약할 수 없으며, 오후 5시 이후에는 다음 날 예약이 제한됩니다.' };
+const defaultWorkers = [
+  { id: 'W001', name: 'INTHAVONG PHAIVANH', callName: '파이반', gender: '여성' },
+  { id: 'W002', name: 'SIVILAY EMMY', callName: '에미', gender: '여성' },
+  { id: 'W003', name: 'XAYYASENG KHAMPHOU', callName: '캄푸', gender: '남성' },
+  { id: 'W004', name: 'PANETHONGDY NOUNE', callName: '눈', gender: '남성' },
+  { id: 'W005', name: 'HER YENG', callName: '영', gender: '남성' }
+];
 
-        loadNotice();
-        loadSchedules();
-    </script>
+function getWorkerList() { return JSON.parse(localStorage.getItem(WORKER_KEY) || JSON.stringify(defaultWorkers)); }
+function loadNotice() {
+  const data = JSON.parse(localStorage.getItem(NOTICE_KEY) || JSON.stringify(defaultNotice));
+  document.getElementById('displayNoticeTitle').textContent = data.title;
+  document.getElementById('displayNoticeBody').textContent = data.body;
+}
+
+let workers = getWorkerList();
+let currentDate = new Date();
+let currentYear = currentDate.getFullYear();
+let currentMonth = currentDate.getMonth() + 1;
+
+function getMinSelectableDate() {
+  let now = new Date();
+  if (now.getHours() >= DEADLINE_HOUR) {
+    now.setDate(now.getDate() + 2);
+  } else {
+    now.setDate(now.getDate() + 1);
+  }
+  let y = now.getFullYear();
+  let m = String(now.getMonth() + 1).padStart(2, '0');
+  let d = String(now.getDate()).padStart(2, '0');
+  return `${y}-${m}-${d}`;
+}
+
+let minSelectableDateStr = getMinSelectableDate();
+let selectedDate = minSelectableDateStr;
+
+let qty = 1, selectedWorkers = [];
+let pendingResetCallback = null;
+
+function showAlert(icon, title, body, callback = null) {
+  document.getElementById('alertIcon').textContent = icon;
+  document.getElementById('alertTitle').textContent = title;
+  document.getElementById('alertBody').innerHTML = body;
+  document.getElementById('alertModal').style.display = 'flex';
+  pendingResetCallback = callback;
+}
+function closeAlertAndReset() { document.getElementById('alertModal').style.display = 'none'; if (pendingResetCallback) { pendingResetCallback(); pendingResetCallback = null; } }
+
+async function apiFetch(endpoint, method = 'GET', body = null) {
+  try {
+    const options = { method, headers: { 'Content-Type': 'application/json' } };
+    if (body) options.body = JSON.stringify(body);
+    const res = await fetch(`${API_BASE_URL}${endpoint}`, options);
+    if (!res.ok) throw new Error();
+    return await res.json();
+  } catch (e) {
+    let d = JSON.parse(localStorage.getItem(KEY) || '{"apps":[]}');
+    if (endpoint === '/apps' && method === 'GET') return d.apps || [];
+    if (endpoint === '/apps' && method === 'POST') { d.apps.push(body); localStorage.setItem(KEY, JSON.stringify(d)); return { success: true }; }
+    if (endpoint.startsWith('/apps/') && method === 'PUT') {
+      const idx = parseInt(endpoint.split('/')[2]);
+      if (d.apps[idx]) { Object.assign(d.apps[idx], body); localStorage.setItem(KEY, JSON.stringify(d)); }
+      return { success: true };
+    }
+  }
+}
+
+// 해당 날짜의 실제 '남은 신청가능 인원 수'를 계산해주는 함수
+async function getAvailableCount(dt) {
+  workers = getWorkerList();
+  const apps = await apiFetch('/apps', 'GET') || [];
+  let used = apps.filter(a => a.date === dt && a.status !== '취소').reduce((n, a) => n + Number(a.qty), 0);
+  return Math.max(0, workers.length - used);
+}
+
+function changeMonth(diff){ currentMonth += diff; if(currentMonth > 12) { currentYear++; currentMonth = 1; } else if(currentMonth < 1) { currentYear--; currentMonth = 12; } renderCalendar(); }
+function daysInMonth(y, m){ return new Date(y, m, 0).getDate(); }
+
+async function renderCalendar(){
+  document.getElementById('calTitle').textContent = `${currentYear}년 ${currentMonth}월`;
+  let s = ''; ['일','월','화','수','목','금','토'].forEach(x => s += `<div class="head">${x}</div>`);
+  const firstDayIndex = new Date(currentYear, currentMonth - 1, 1).getDay();
+  for(let i = 0; i < firstDayIndex; i++) s += '<div class="disabled"></div>';
+  
+  const apps = await apiFetch('/apps', 'GET') || [];
+  const maxDays = daysInMonth(currentYear, currentMonth);
+  for(let d = 1; d <= maxDays; d++){
+    let dayOfWeek = new Date(currentYear, currentMonth - 1, d).getDay();
+    let dt = `${currentYear}-${String(currentMonth).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    let holidayName = HOLIDAYS[dt];
+    
+    let isPastOrToday = dt <= new Date().toISOString().split('T')[0];
+    let now = new Date();
+    let isTomorrowAfter5PM = false;
+    if (now.getHours() >= DEADLINE_HOUR) {
+      let tomorrow = new Date();
+      tomorrow.setDate(now.getDate() + 1);
+      let tomorrowStr = `${tomorrow.getFullYear()}-${String(tomorrow.getMonth()+1).padStart(2,'0')}-${String(tomorrow.getDate()).padStart(2,'0')}`;
+      if (dt === tomorrowStr) isTomorrowAfter5PM = true;
+    }
+
+    if(dayOfWeek === 0) {
+      s += `<div class="disabled"><b>${d}</b><div class="count">휴무</div></div>`;
+    } else if(holidayName) {
+      s += `<div class="disabled holiday"><b style="color:#e11">${d}</b><div class="count" style="color:#e11">${holidayName}</div></div>`;
+    } else if(isPastOrToday || isTomorrowAfter5PM) {
+      s += `<div class="disabled"><b>${d}</b><div class="count">마감/불가</div></div>`;
+    } else {
+      let used = apps.filter(a => a.date === dt && a.status !== '취소').reduce((n, a) => n + Number(a.qty), 0);
+      let count = Math.max(0, workers.length - used);
+      s += `<div class="day ${dt === selectedDate ? 'selected' : ''}" onclick="pickDate('${dt}')"><b>${d}</b><div class="count">${count}/${workers.length}</div></div>`;
+    }
+  }
+  document.getElementById('calendar').innerHTML = s;
+}
+
+async function pickDate(dt){ 
+  let isPastOrToday = dt <= new Date().toISOString().split('T')[0];
+  let now = new Date();
+  let isTomorrowAfter5PM = false;
+  if (now.getHours() >= DEADLINE_HOUR) {
+    let tomorrow = new Date();
+    tomorrow.setDate(now.getDate() + 1);
+    let tomorrowStr = `${tomorrow.getFullYear()}-${String(tomorrow.getMonth()+1).padStart(2,'0')}-${String(tomorrow.getDate()).padStart(2,'0')}`;
+    if (dt === tomorrowStr) isTomorrowAfter5PM = true;
+  }
+
+  if (isPastOrToday || isTomorrowAfter5PM) {
+    alert('당일 및 지난 날짜, 혹은 오후 5시 이후의 익일 예약은 불가능합니다.');
+    return;
+  }
+
+  selectedDate = dt; selectedWorkers = []; qty = 1; document.getElementById('qty').value = qty; updatePrice(); await renderCalendar(); await renderWorkers(); 
+}
+
+async function renderWorkers(){
+  workers = getWorkerList();
+  const apps = await apiFetch('/apps', 'GET') || [];
+  const lockedSet = new Set();
+  apps.filter(a => a.date === selectedDate && a.status !== '취소').forEach(a => (a.selectedWorkerIds || []).forEach(id => lockedSet.add(id)));
+
+  document.getElementById('workers').innerHTML = workers.map(w => {
+    let locked = lockedSet.has(w.id), sel = selectedWorkers.includes(w.id);
+    return `<div class="worker ${locked ? 'locked' : ''} ${sel ? 'selected' : ''}" onclick="${locked ? '' : 'toggleWorker(\'' + w.id + '\')'}">
+      <b>${sel ? '✓ ' : ''}${w.callName ? '<span class="callname-tag">['+w.callName+']</span>' : ''}${w.name}</b>
+      <small>성별: ${w.gender}${locked ? ' <b style="color:#d33">(배정 완료)</b>' : ''}</small>
+    </div>`;
+  }).join('');
+}
+
+// [개선된 선호 근로자 토글 함수: 잔여 수량 초과 지명 차단]
+async function toggleWorker(id){
+  let availCount = await getAvailableCount(selectedDate);
+  let i = selectedWorkers.indexOf(id);
+
+  if(i >= 0) {
+    selectedWorkers.splice(i, 1);
+  } else {
+    if (selectedWorkers.length >= availCount) {
+      alert(`해당 날짜는 현재 남은 신청 가능 인원(${availCount}명)까지만 지명할 수 있습니다.`);
+      return;
+    }
+    selectedWorkers.push(id);
+  }
+
+  qty = Math.max(1, selectedWorkers.length); 
+  document.getElementById('qty').value = qty; 
+  updatePrice(); 
+  renderWorkers();
+}
+
+// [개선된 신청 인원 수량 변경 함수: 잔여 수량 초과 신청 차단]
+async function changeQty(n){ 
+  let availCount = await getAvailableCount(selectedDate);
+  let minQty = selectedWorkers.length || 1;
+  let newQty = qty + n;
+
+  if (newQty > availCount) {
+    alert(`해당 날짜는 잔여 수량(${availCount}명)을 초과하여 신청할 수 없습니다.`);
+    return;
+  }
+
+  qty = Math.max(minQty, Math.min(availCount, newQty)); 
+  document.getElementById('qty').value = qty; 
+  updatePrice(); 
+}
+
+function updatePrice(){ document.getElementById('price').textContent = '₩' + (qty * BASE_DAILY_PRICE).toLocaleString(); }
+
+function resetForm() {
+  document.getElementById('farmerName').value = ''; document.getElementById('phone').value = ''; document.getElementById('address').value = ''; document.getElementById('work').value = ''; document.getElementById('etc').value = '';
+  selectedWorkers = []; qty = 1; document.getElementById('qty').value = 1; updatePrice(); renderCalendar(); renderWorkers();
+}
+
+async function submitApplication(){
+  let farmerName = document.getElementById('farmerName').value.trim(), phone = document.getElementById('phone').value.trim(), address = document.getElementById('address').value.trim(), work = document.getElementById('work').value.trim();
+  if(!farmerName || !phone || !address || !work){ showAlert('⚠️', '입력 확인', '모든 항목을 입력해주세요.'); return; }
+  
+  const no = 'REC-2026-' + String(Math.floor(100 + Math.random() * 900));
+  const selectedWorkerNames = selectedWorkers.map(id => { let w = workers.find(x => x.id === id); return w ? (w.callName ? `[${w.callName}] ${w.name}` : w.name) : ''; });
+  
+  const payload = { no, date: selectedDate, farmerName, phone, address, work, gender: document.querySelector('input[name="gender"]:checked')?.value || '무관', selectedWorkerIds: selectedWorkers, workers: selectedWorkerNames, qty, etc: document.getElementById('etc').value, status: '접수대기', baseHours: 10, overtimeHours: 0, totalPrice: qty * BASE_DAILY_PRICE };
+
+  await apiFetch('/apps', 'POST', payload);
+  showAlert('🎉', '신청 완료!', `접수번호: <b style="color:#168b43">${no}</b><br>예정일: ${selectedDate}`, resetForm);
+}
+
+// [다중 검색 조회 함수]
+async function lookup(){
+  let p = prompt('접수번호, 전화번호, 또는 농장주명을 입력해 주세요.'); 
+  if(!p || !p.trim()) return;
+  
+  const rawQuery = p.trim();
+  const cleanQuery = rawQuery.toUpperCase().replace(/[\s-]/g, '');
+
+  const apps = await apiFetch('/apps', 'GET') || [];
+  
+  let userApps = apps.filter(x => {
+    const cleanNo = (x.no || '').toUpperCase().replace(/[\s-]/g, '');
+    const cleanPhone = (x.phone || '').replace(/[\s-]/g, '');
+    const farmerName = (x.farmerName || '').trim();
+
+    return cleanNo.includes(cleanQuery) || 
+           cleanPhone.includes(cleanQuery) || 
+           farmerName.includes(rawQuery);
+  });
+
+  if(!userApps.length){ 
+    showAlert('🔍', '내역 없음', '입력하신 정보와 일치하는 신청 내역이 없습니다.'); 
+    return; 
+  }
+
+  let msg = `<h3 style="margin-top:0;color:#168b43;text-align:center;">📋 신청 내역 조회 결과</h3>`;
+  msg += `<p style="font-size:13px;color:#666;text-align:center;margin-bottom:15px;">검색어: <b>${rawQuery}</b> (총 ${userApps.length}건)</p>`;
+  
+  userApps.forEach((x, idx) => {
+    let statusBg = x.status === '배정완료' ? '#dff5e6' : (x.status === '취소' ? '#f8d7da' : '#fff3cd');
+    let statusColor = x.status === '배정완료' ? '#08752f' : (x.status === '취소' ? '#721c24' : '#8a6500');
+
+    msg += `<div style="border:1px solid #ddd;padding:12px;border-radius:8px;margin-bottom:10px;background:#fcfdfd;">
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <b>${idx + 1}. 접수번호: ${x.no}</b>
+        <span style="background:${statusBg};color:${statusColor};padding:3px 8px;border-radius:12px;font-size:12px;font-weight:bold;">${x.status || '접수대기'}</span>
+      </div>
+      <div style="font-size:13px;color:#444;margin-top:6px;line-height:1.5;">
+        • 농가명: <b>${x.farmerName}</b> (${x.phone})<br>
+        • 신청일: ${x.date} | 신청인원: ${x.qty}명<br>
+        • 작업내용: ${x.work}
+      </div>`;
+    
+    if (x.status !== '취소') {
+      msg += `<div style="text-align:right;margin-top:8px;">
+        <button class="mini" style="background:#dc3545;color:#fff;border:0;" onclick="cancelAppByUser('${x.no}')">취소하기</button>
+      </div>`;
+    }
+    msg += `</div>`;
+  });
+
+  document.getElementById('invoiceContent').innerHTML = msg; 
+  document.getElementById('invoiceModal').style.display = 'flex';
+}
+
+async function cancelAppByUser(appNo) {
+  const apps = await apiFetch('/apps', 'GET') || [];
+  const idx = apps.findIndex(x => x.no === appNo);
+  if (idx !== -1 && confirm(`접수번호 [${appNo}] 신청을 취소하시겠습니까?`)) {
+    await apiFetch(`/apps/${idx}`, 'PUT', { status: '취소', selectedWorkerIds: [], workers: [] });
+    closeInvoice(); 
+    showAlert('🗑️', '취소 완료', '정상적으로 취소되었습니다.', resetForm);
+  }
+}
+
+function closeInvoice(){ document.getElementById('invoiceModal').style.display = 'none'; }
+
+document.getElementById('clock').textContent = new Date().toLocaleDateString('ko-KR');
+loadNotice(); renderCalendar(); renderWorkers(); updatePrice();
+</script>
 </body>
 </html>
