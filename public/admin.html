@@ -44,30 +44,30 @@ label{display:block;font-weight:700;margin:0 0 8px}.field{margin-bottom:17px} in
 .filter-row select {width:auto;padding:8px;border-radius:6px;border:1px solid #ccc;font-size:14px;}
 
 @media print {
-body * { visibility: hidden; }
-#invoiceModal, #invoiceModal * { visibility: visible; }
-#invoiceModal { position: absolute; left: 0; top: 0; width: 100%; height: auto; background: none; }
-.invoice-box { box-shadow: none; max-height: none; width: 100%; padding: 0; }
-.actions { display: none !important; }
-.scrollable-table-wrap { overflow: visible !important; border: none !important; }
+  body * { visibility: hidden; }
+  #invoiceModal, #invoiceModal * { visibility: visible; }
+  #invoiceModal { position: absolute; left: 0; top: 0; width: 100%; height: auto; background: none; }
+  .invoice-box { box-shadow: none; max-height: none; width: 100%; padding: 0; }
+  .actions { display: none !important; }
+  .scrollable-table-wrap { overflow: visible !important; border: none !important; }
 }
 </style>
 </head>
 <body>
 
 <div id="loginModal" class="modal" style="display:flex">
-<div class="login-box">
-<h2 style="margin-top:0;color:#168b43">🔒 관리자 로그인</h2>
-<p style="font-size:14px;color:#666">관리자 계정 정보를 입력해 주세요.</p>
-<div class="field" style="text-align:left"><label>아이디</label><input id="adminId" value="admin"></div>
-<div class="field" style="text-align:left"><label>비밀번호</label><input type="password" id="adminPw" placeholder="비밀번호 입력"></div>
-<div style="text-align:left;margin-bottom:15px;font-size:14px;color:#444;">
-<label style="display:flex;align-items:center;gap:6px;font-weight:normal;cursor:pointer;">
-<input type="checkbox" id="rememberLogin" style="width:auto;margin:0;" checked> 로그인 상태 유지 (새로고침 방지)
-</label>
-</div>
-<button class="primary" style="width:100%" onclick="checkLogin()">로그인</button>
-</div>
+  <div class="login-box">
+    <h2 style="margin-top:0;color:#168b43">🔒 관리자 로그인</h2>
+    <p style="font-size:14px;color:#666">관리자 계정 정보를 입력해 주세요.</p>
+    <div class="field" style="text-align:left"><label>아이디</label><input id="adminId" value="admin"></div>
+    <div class="field" style="text-align:left"><label>비밀번호</label><input type="password" id="adminPw" placeholder="비밀번호 입력"></div>
+    <div style="text-align:left;margin-bottom:15px;font-size:14px;color:#444;">
+      <label style="display:flex;align-items:center;gap:6px;font-weight:normal;cursor:pointer;">
+        <input type="checkbox" id="rememberLogin" style="width:auto;margin:0;" checked> 로그인 상태 유지 (새로고침 방지)
+      </label>
+    </div>
+    <button class="primary" style="width:100%" onclick="checkLogin()">로그인</button>
+  </div>
 </div>
 
 <div class="app" id="adminApp" style="display:none">
@@ -76,27 +76,27 @@ body * { visibility: hidden; }
 <div class="title">계절근로자 배정 및 정산 관리</div>
 
 <div class="stats-grid">
-<div class="stat-card"><div>총 신청 농가수</div><div class="val" id="statFarmerCount">0 농가</div></div>
-<div class="stat-card"><div>총 신청/작업 건수</div><div class="val" id="statAppCount">0 건</div></div>
-<div class="stat-card"><div>총 누적 정산금액</div><div class="val" id="statTotalPrice">₩0</div></div>
+  <div class="stat-card"><div>총 신청 농가수</div><div class="val" id="statFarmerCount">0 농가</div></div>
+  <div class="stat-card"><div>총 신청/작업 건수</div><div class="val" id="statAppCount">0 건</div></div>
+  <div class="stat-card"><div>총 누적 정산금액</div><div class="val" id="statTotalPrice">₩0</div></div>
 </div>
 
 <div class="card">
-<b>📢 공지사항 수정 관리</b>
-<div class="field" style="margin-top:10px"><label>공지 제목</label><input id="inputNoticeTitle"></div>
-<div class="field"><label>공지 내용</label><textarea id="inputNoticeBody" style="min-height:80px"></textarea></div>
-<button class="primary" onclick="saveNotice()" style="padding:10px 15px">공지사항 저장 및 반영</button>
+  <b>📢 공지사항 수정 관리</b>
+  <div class="field" style="margin-top:10px"><label>공지 제목</label><input id="inputNoticeTitle"></div>
+  <div class="field"><label>공지 내용</label><textarea id="inputNoticeBody" style="min-height:80px"></textarea></div>
+  <button class="primary" onclick="saveNotice()" style="padding:10px 15px">공지사항 저장 및 반영</button>
 </div>
 
 <div class="toolbar">
-<button class="toolbar-btn excel" onclick="exportCombinedExcel()">📊 통합 정산·급여집계표 (엑셀)</button>
-<label class="toolbar-btn upload">
-📁 근로자 명단 엑셀 업로드
-<input type="file" id="excelUpload" accept=".xlsx, .xls" style="display:none" onchange="handleExcelUpload(event)">
-</label>
-<button class="toolbar-btn stats" onclick="showWorkerStats()">👥 월별/연도별 급여명세서 (라오스어)</button>
-<button class="toolbar-btn sample" onclick="createSampleData()">🧪 샘플 데이터 생성</button>
-<button class="toolbar-btn reset" onclick="clearData()">전체 초기화</button>
+  <button class="toolbar-btn excel" onclick="exportCombinedExcel()">📊 통합 정산·급여집계표 (엑셀)</button>
+  <label class="toolbar-btn upload">
+    📁 근로자 명단 엑셀 업로드
+    <input type="file" id="excelUpload" accept=".xlsx, .xls" style="display:none" onchange="handleExcelUpload(event)">
+  </label>
+  <button class="toolbar-btn stats" onclick="showWorkerStats()">👥 월별/연도별 급여명세서 (라오스어)</button>
+  <button class="toolbar-btn sample" onclick="createSampleData()">🧪 샘플 데이터 생성</button>
+  <button class="toolbar-btn reset" onclick="clearData()">전체 초기화</button>
 </div>
 
 <div id="adminTable" class="table-wrap"></div>
@@ -104,17 +104,17 @@ body * { visibility: hidden; }
 </div>
 
 <div id="invoiceModal" class="modal">
-<div class="invoice-box">
-<h2 style="margin:0;color:#168b43;text-align:center" id="modalTitle">상세내역</h2>
-<div id="invoiceFilterArea"></div>
-<div id="invoiceContent"></div>
-<div class="actions" style="margin-top:20px;justify-content:flex-end;">
-<button class="primary" id="modalShareBtn" onclick="shareReservation()" style="background:#f7e600;color:#3c1e1e;display:none">💬 예약 내용 공유</button>
-<button class="primary" id="modalPrintBtn" onclick="window.print()">🖨️ 바로 인쇄</button>
-<button class="pdf-btn" id="modalPdfBtn" onclick="downloadPdfNotice()">📄 PDF로 저장</button>
-<button class="secondary" onclick="closeInvoice()">닫기</button>
-</div>
-</div>
+  <div class="invoice-box">
+    <h2 style="margin:0;color:#168b43;text-align:center" id="modalTitle">상세내역</h2>
+    <div id="invoiceFilterArea"></div>
+    <div id="invoiceContent"></div>
+    <div class="actions" style="margin-top:20px;justify-content:flex-end;">
+      <button class="primary" id="modalShareBtn" onclick="shareReservation()" style="background:#f7e600;color:#3c1e1e;display:none">💬 예약 내용 공유</button>
+      <button class="primary" id="modalPrintBtn" onclick="window.print()">🖨️ 바로 인쇄</button>
+      <button class="pdf-btn" id="modalPdfBtn" onclick="downloadPdfNotice()">📄 PDF로 저장</button>
+      <button class="secondary" onclick="closeInvoice()">닫기</button>
+    </div>
+  </div>
 </div>
 
 <script>
@@ -129,58 +129,58 @@ const BASE_DAILY_PRICE = 120000;
 const BASE_DAILY_HOURS = 10; 
 
 window.addEventListener('DOMContentLoaded', () => {
-const isLogged = localStorage.getItem(LOGIN_SESSION_KEY);
-if (isLogged === 'true') {
-document.getElementById('loginModal').style.display = 'none';
-document.getElementById('adminApp').style.display = 'block';
-loadNotice();
-renderAdmin();
-}
+  const isLogged = localStorage.getItem(LOGIN_SESSION_KEY);
+  if (isLogged === 'true') {
+    document.getElementById('loginModal').style.display = 'none';
+    document.getElementById('adminApp').style.display = 'block';
+    loadNotice();
+    renderAdmin();
+  }
 });
 
 function checkLogin() {
-const id = document.getElementById('adminId').value.trim();
-const pw = document.getElementById('adminPw').value.trim();
-const remember = document.getElementById('rememberLogin').checked;
+  const id = document.getElementById('adminId').value.trim();
+  const pw = document.getElementById('adminPw').value.trim();
+  const remember = document.getElementById('rememberLogin').checked;
 
-if (id === 'admin' && pw === '1234') {
-if (remember) { localStorage.setItem(LOGIN_SESSION_KEY, 'true'); }
-document.getElementById('loginModal').style.display = 'none';
-document.getElementById('adminApp').style.display = 'block';
-loadNotice();
-renderAdmin();
-} else {
-alert('아이디 또는 비밀번호가 일치하지 않습니다.');
-}
+  if (id === 'admin' && pw === '1234') {
+    if (remember) { localStorage.setItem(LOGIN_SESSION_KEY, 'true'); }
+    document.getElementById('loginModal').style.display = 'none';
+    document.getElementById('adminApp').style.display = 'block';
+    loadNotice();
+    renderAdmin();
+  } else {
+    alert('아이디 또는 비밀번호가 일치하지 않습니다.');
+  }
 }
 
 function logout() {
-localStorage.removeItem(LOGIN_SESSION_KEY);
-location.reload();
+  localStorage.removeItem(LOGIN_SESSION_KEY);
+  location.reload();
 }
 
 const defaultWorkers = [
-{ id: 'W001', name: 'INTHAVONG PHAIVANH', callName: '파이반', gender: '여성' },
-{ id: 'W002', name: 'SIVILAY EMMY', callName: '에미', gender: '여성' },
-{ id: 'W003', name: 'XAYYASENG KHAMPHOU', callName: '캄푸', gender: '남성' },
-{ id: 'W004', name: 'PANETHONGDY NOUNE', callName: '눈', gender: '남성' },
-{ id: 'W005', name: 'HER YENG', callName: '영', gender: '남성' }
+  { id: 'W001', name: 'INTHAVONG PHAIVANH', callName: '파이반', gender: '여성' },
+  { id: 'W002', name: 'SIVILAY EMMY', callName: '에미', gender: '여성' },
+  { id: 'W003', name: 'XAYYASENG KHAMPHOU', callName: '캄푸', gender: '남성' },
+  { id: 'W004', name: 'PANETHONGDY NOUNE', callName: '눈', gender: '남성' },
+  { id: 'W005', name: 'HER YENG', callName: '영', gender: '남성' }
 ];
 
 function getWorkerList() { return JSON.parse(localStorage.getItem(WORKER_KEY) || JSON.stringify(defaultWorkers)); }
 function saveWorkerList(list) { localStorage.setItem(WORKER_KEY, JSON.stringify(list)); }
 
 function loadNotice() {
-const data = JSON.parse(localStorage.getItem(NOTICE_KEY) || '{"title":"📢 포천시 계절근로자 신청 안내","body":"농가 일손이 필요하신 분은 시스템을 통해 편리하게 신청하세요."}');
-document.getElementById('inputNoticeTitle').value = data.title;
-document.getElementById('inputNoticeBody').value = data.body;
+  const data = JSON.parse(localStorage.getItem(NOTICE_KEY) || '{"title":"📢 포천시 계절근로자 신청 안내","body":"농가 일손이 필요하신 분은 시스템을 통해 편리하게 신청하세요."}');
+  document.getElementById('inputNoticeTitle').value = data.title;
+  document.getElementById('inputNoticeBody').value = data.body;
 }
 
 function saveNotice() {
-const title = document.getElementById('inputNoticeTitle').value.trim();
-const body = document.getElementById('inputNoticeBody').value.trim();
-localStorage.setItem(NOTICE_KEY, JSON.stringify({ title, body }));
-alert('공지사항이 저장되었습니다.');
+  const title = document.getElementById('inputNoticeTitle').value.trim();
+  const body = document.getElementById('inputNoticeBody').value.trim();
+  localStorage.setItem(NOTICE_KEY, JSON.stringify({ title, body }));
+  alert('공지사항이 저장되었습니다.');
 }
 
 async function apiFetch(endpoint, method = 'GET', body = null) {
@@ -197,17 +197,508 @@ async function apiFetch(endpoint, method = 'GET', body = null) {
       const idx = parseInt(endpoint.split('/')[2]);
       if (d.apps[idx]) { Object.assign(d.apps[idx], body); localStorage.setItem(KEY, JSON.stringify(d)); }
       return { success: true };
-    try {
-        const options = { method, headers: { 'Content-Type': 'application/json' } };
-        if (body) options.body = JSON.stringify(body);
-        const res = await fetch(`${API_BASE_URL}${endpoint}`, options);
-        if (!res.ok) throw new Error(`서버 에러 (${res.status})`);
-        return await res.json();
-    } catch (e) {
-        console.error('API 통신 실패:', e);
-        throw e;
-}
+    }
   }
 }
 
 async function renderAdmin(){
+  const apps = await apiFetch('/apps', 'GET') || [];
+  const validApps = apps.filter(a => a.status !== '취소');
+  const uniqueFarmers = new Set(validApps.map(a => a.farmerName ? a.farmerName.trim() : ''));
+  
+  let totalCalculatedPrice = validApps.reduce((sum, a) => {
+    if (a.status === '배정완료' && a.selectedWorkerIds && a.selectedWorkerIds.length > 0) {
+      return sum + (a.totalPrice || (a.selectedWorkerIds.length * BASE_DAILY_PRICE));
+    }
+    return sum;
+  }, 0);
+
+  document.getElementById('statFarmerCount').textContent = `${uniqueFarmers.size} 농가`;
+  document.getElementById('statAppCount').textContent = `${validApps.length} 건`;
+  document.getElementById('statTotalPrice').textContent = `₩${totalCalculatedPrice.toLocaleString()}`;
+
+  if(!apps.length){ document.getElementById('adminTable').innerHTML = '<div style="padding:20px;text-align:center;font-size:14px;">신청 데이터가 없습니다.</div>'; return; }
+  
+  let workers = getWorkerList();
+  document.getElementById('adminTable').innerHTML = `<table class="table">
+    <thead><tr><th>접수번호</th><th>신청일</th><th>농장주</th><th style="text-align:left; padding-left:15px;">인원 및 배정근로자</th><th>정산금액</th><th>상태</th><th>정산서</th><th>관리</th></tr></thead>
+    <tbody>` + apps.map((a, i) => {
+      let assignedCount = (a.selectedWorkerIds && a.selectedWorkerIds.length > 0) ? a.selectedWorkerIds.length : 0;
+      let totalP = (a.status === '배정완료' && assignedCount > 0) ? (a.totalPrice || (assignedCount * BASE_DAILY_PRICE)) : 0;
+      
+      let workerListStr = '<br><small style="color:#d33">(미배정)</small>';
+      if (a.selectedWorkerIds && a.selectedWorkerIds.length) {
+        let formattedList = a.selectedWorkerIds.map(id => {
+          let w = workers.find(x => x.id === id);
+          if (!w) return '';
+          let tag = w.callName ? `<span class="callname-tag">[${w.callName}]</span>` : '';
+          return `<div style="margin-top:3px; line-height:1.4;">${tag}${w.name}</div>`;
+        });
+        workerListStr = `<div style="margin-top:6px;">${formattedList.join('')}</div>`;
+      }
+      return `<tr style="${a.status === '취소' ? 'opacity:0.5;background:#fdf2f2;' : ''}">
+        <td>${a.no || (i+1)}</td><td>${a.date || '-'}</td>
+        <td><b>${a.farmerName}</b><br><small>${a.phone || ''}</small></td>
+        <td style="text-align:left; white-space:normal;"><b>${assignedCount > 0 ? assignedCount + '명' : '0명'}</b> <small style="color:#666">(신청:${a.qty})</small>${workerListStr}</td>
+        <td><b>₩${totalP.toLocaleString()}</b></td>
+        <td><span class="badge ${a.status === '배정완료' ? 'done' : (a.status === '취소' ? 'cancel' : 'wait')}">${a.status || '접수대기'}</span></td>
+        <td><button class="mini" onclick="openInvoiceByFarmer('${a.farmerName}')" ${a.status==='취소'?'disabled':''}>청구서</button></td>
+        <td>
+          ${a.status !== '취소' ? `
+            <button class="mini" onclick="openAssignModal(${i})">배정관리</button>
+            <button class="mini" onclick="editHours(${i})">시간/정산</button>
+            <button class="mini" style="background:#e8f5e9;color:#08752f;" onclick="openShareModal(${i})">공유</button>
+            <button class="mini" style="color:#d33" onclick="cancelAppByAdmin(${i})">취소</button>
+          ` : '취소됨'}
+        </td>
+      </tr>`;
+    }).join('') + '</tbody></table>';
+}
+
+async function openAssignModal(appIndex) {
+  const apps = await apiFetch('/apps', 'GET') || [];
+  const item = apps[appIndex];
+  let workers = getWorkerList();
+
+  let alreadyAssignedOnThisDate = new Set();
+  apps.forEach((a, idx) => {
+    if (idx !== appIndex && a.status !== '취소' && a.date === item.date && a.selectedWorkerIds) {
+      a.selectedWorkerIds.forEach(id => alreadyAssignedOnThisDate.add(id));
+    }
+  });
+
+  let targetYear = 'all', targetMonth = 'all';
+  if (item.date) {
+    let parts = item.date.split('-');
+    if (parts.length >= 2) { targetYear = parts[0]; targetMonth = parts[1]; }
+  }
+
+  let stats = {};
+  workers.forEach(w => stats[w.id] = { days: 0, hours: 0 });
+
+  apps.filter(a => a.status === '배정완료').forEach(a => {
+    if (a.date) {
+      let [aY, aM] = a.date.split('-');
+      if (aY === targetYear && aM === targetMonth) {
+        if (a.selectedWorkerIds) {
+          a.selectedWorkerIds.forEach(id => {
+            if (stats[id]) {
+              stats[id].days += 1;
+              stats[id].hours += BASE_DAILY_HOURS + (a.overtimeHours || 0);
+            }
+          });
+        }
+      }
+    }
+  });
+
+  let currentSelected = new Set(item.selectedWorkerIds || []);
+  let allowedQty = item.qty || workers.length;
+
+  let html = `<p style="font-size:14px;"><b>${item.farmerName} 농가 | 신청일: ${item.date} (신청요청 인원: ${item.qty}명)</b></p>
+  <p style="font-size:13px;color:#d9534f;margin-top:-5px;">⚠️ 당일 타농가 배정 근로자는 선택 불가하며, 신청하신 인원 <b>${allowedQty}명</b>까지만 선택할 수 있습니다.</p>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;max-height:50vh;overflow-y:auto;padding:2px;" id="workerCheckboxContainer">`;
+
+  workers.forEach(w => {
+    let isChecked = currentSelected.has(w.id);
+    let isAlreadyBusy = alreadyAssignedOnThisDate.has(w.id);
+    let s = stats[w.id] || { days: 0, hours: 0 };
+    
+    let boxBg = '#fff';
+    if (isChecked) boxBg = '#e8f5e9';
+    if (isAlreadyBusy) boxBg = '#f1f1f1';
+
+    html += `<label style="border:1px solid ${isAlreadyBusy ? '#ddd' : '#ccc'};padding:12px;border-radius:8px;background:${boxBg};cursor:${isAlreadyBusy?'not-allowed':'pointer'};font-size:14px;opacity:${isAlreadyBusy?'0.6':'1'};">
+      <input type="checkbox" name="adminWorkerPick" value="${w.id}" ${isChecked ? 'checked' : ''} ${isAlreadyBusy ? 'disabled' : ''} onchange="validateWorkerSelection(${allowedQty})">
+      <b>${w.callName ? '['+w.callName+']' : ''} ${w.name}</b>
+      ${isAlreadyBusy ? '<br><small style="color:#d9534f;font-weight:bold;">[당일 타농가 배정됨]</small>' : ''}
+      <div style="font-size:13px;color:#444;margin-top:6px;border-top:1px dashed #eee;padding-top:4px;">
+        🗓️ 당월 누적: <b style="color:#168b43">${s.days}일</b> (${s.hours}시간)
+      </div>
+    </label>`;
+  });
+
+  html += `</div><button class="primary" style="margin-top:15px;width:100%;font-size:15px;" onclick="saveAssignment(${appIndex})">배정 저장하기</button>`;
+
+  document.getElementById('modalTitle').textContent = '계절근로자 배정 관리';
+  document.getElementById('invoiceFilterArea').innerHTML = '';
+  document.getElementById('invoiceContent').innerHTML = html;
+  document.getElementById('modalShareBtn').style.display = 'none';
+  document.getElementById('modalPrintBtn').style.display = 'none';
+  document.getElementById('modalPdfBtn').style.display = 'none';
+  document.getElementById('invoiceModal').style.display = 'flex';
+}
+
+function validateWorkerSelection(maxAllowedQty) {
+  const checkboxes = document.querySelectorAll('input[name="adminWorkerPick"]:checked');
+  if (checkboxes.length > maxAllowedQty) {
+    alert(`신청하신 인원 수(${maxAllowedQty}명)를 초과하여 배정할 수 없습니다.`);
+    event.target.checked = false;
+  }
+}
+
+async function saveAssignment(appIndex) {
+  const apps = await apiFetch('/apps', 'GET') || [];
+  const item = apps[appIndex];
+  const checkboxes = document.querySelectorAll('input[name="adminWorkerPick"]:checked');
+  const selectedIds = Array.from(checkboxes).map(cb => cb.value);
+
+  if (selectedIds.length > item.qty) {
+    alert(`신청 인원(${item.qty}명)보다 많은 인원이 선택되었습니다.`);
+    return;
+  }
+
+  let currentApps = JSON.parse(localStorage.getItem(KEY) || '{"apps":[]}');
+  if (currentApps.apps && currentApps.apps[appIndex]) {
+    currentApps.apps[appIndex].selectedWorkerIds = selectedIds;
+    currentApps.apps[appIndex].status = selectedIds.length > 0 ? '배정완료' : '접수대기';
+    currentApps.apps[appIndex].totalPrice = selectedIds.length * BASE_DAILY_PRICE + ((selectedIds.length * (currentApps.apps[appIndex].overtimeHours || 0)) * OVERTIME_HOURLY_WAGE);
+    localStorage.setItem(KEY, JSON.stringify(currentApps));
+  }
+  closeInvoice(); 
+  renderAdmin();
+}
+
+let currentShareText = '';
+async function openShareModal(appIndex) {
+  const apps = await apiFetch('/apps', 'GET') || [];
+  const item = apps[appIndex];
+  let workers = getWorkerList();
+  
+  let workerListFormatted = '미배정';
+  let actualCount = 0;
+  if (item.selectedWorkerIds && item.selectedWorkerIds.length > 0) {
+    actualCount = item.selectedWorkerIds.length;
+    workerListFormatted = item.selectedWorkerIds.map((id, idx) => {
+      let w = workers.find(x => x.id === id);
+      let nameStr = w ? (w.callName ? `[${w.callName}] ${w.name}` : w.name) : id;
+      return `   ${idx + 1}. ${nameStr}`;
+    }).join('\n');
+  }
+
+  currentShareText = `[포천시 계절근로자 예약 안내]\n` +
+    `────────────────────\n` +
+    `- 접수번호: ${item.no}\n` +
+    `- 농장주: ${item.farmerName} (${item.phone})\n` +
+    `- 농지주소: ${item.address}\n` +
+    `- 작업일자: ${item.date}\n` +
+    `- 작업내용: ${item.work}\n` +
+    `- 배정인원: ${actualCount}명 (신청:${item.qty}명)\n` +
+    `- 배정 근로자 명단:\n${workerListFormatted}\n` +
+    `- 상태: ${item.status}\n` +
+    `────────────────────\n` +
+    `감사합니다.`;
+
+  let html = `<div style="text-align:center;margin-bottom:15px;">
+    <h3 style="font-size:16px;">📢 계절근로자 예약 내용 공유</h3>
+    <p style="font-size:14px;color:#555">아래의 내용을 복사하여 농가 또는 관리자에게 공유해 주세요.</p>
+  </div>
+  <textarea readonly style="width:100%;height:220px;padding:12px;font-size:14px;background:#f9f9f9;border:1px solid #ccc;border-radius:8px;resize:none;line-height:1.5;">${currentShareText}</textarea>
+  <div style="text-align:center;margin-top:15px;">
+    <button class="primary" onclick="copyShareText()" style="width:100%;background:#168b43;font-size:15px;">📋 공유 텍스트 클립보드 복사</button>
+  </div>`;
+
+  document.getElementById('modalTitle').textContent = '예약 내용 공유';
+  document.getElementById('invoiceFilterArea').innerHTML = '';
+  document.getElementById('invoiceContent').innerHTML = html;
+  document.getElementById('modalShareBtn').style.display = 'none';
+  document.getElementById('modalPrintBtn').style.display = 'none';
+  document.getElementById('modalPdfBtn').style.display = 'none';
+  document.getElementById('invoiceModal').style.display = 'flex';
+}
+
+function copyShareText() {
+  navigator.clipboard.writeText(currentShareText).then(() => {
+    alert('예약 내용이 클립보드에 복사되었습니다.');
+  }).catch(() => {
+    alert('복사에 실패했습니다.');
+  });
+}
+
+function generateDateFilter(idPrefix, callbackName, currentYear, currentMonth) {
+  let yearOpts = `<option value="all" ${currentYear==='all'?'selected':''}>전체 연도</option>`;
+  for(let y=2024; y<=2030; y++) yearOpts += `<option value="${y}" ${currentYear==y?'selected':''}>${y}년</option>`;
+  
+  let monthOpts = `<option value="all" ${currentMonth==='all'?'selected':''}>전체 월</option>`;
+  for(let m=1; m<=12; m++) {
+    let mVal = m < 10 ? '0' + m : String(m);
+    monthOpts += `<option value="${mVal}" ${currentMonth===mVal?'selected':''}>${m}월</option>`;
+  }
+
+  return `<div class="filter-row">
+    <strong>📅 조회 기간:</strong>
+    <select id="${idPrefix}Year" onchange="${callbackName}">${yearOpts}</select>
+    <select id="${idPrefix}Month" onchange="${callbackName}">${monthOpts}</select>
+  </div>`;
+}
+
+async function openInvoiceByFarmer(farmerName) {
+  const apps = await apiFetch('/apps', 'GET') || [];
+  let targetApp = apps.find(a => a.farmerName === farmerName && a.date);
+  
+  let defaultYear = 'all';
+  let defaultMonth = 'all';
+  
+  if (targetApp && targetApp.date) {
+    let parts = targetApp.date.split('-');
+    if (parts.length >= 2) {
+      defaultYear = parts[0];
+      defaultMonth = parts[1];
+    }
+  }
+  openInvoice(farmerName, defaultYear, defaultMonth);
+}
+
+async function openInvoice(farmerName, forceYear, forceMonth) {
+  const yEl = document.getElementById('invYear');
+  const mEl = document.getElementById('invMonth');
+  
+  let year = yEl ? yEl.value : (forceYear || 'all');
+  let month = mEl ? mEl.value : (forceMonth || 'all');
+
+  const apps = await apiFetch('/apps', 'GET') || [];
+  let filtered = apps.filter(a => {
+    if (a.farmerName !== farmerName || a.status !== '배정완료' || !a.selectedWorkerIds || a.selectedWorkerIds.length === 0) return false;
+    if (!a.date) return false;
+    let parts = a.date.split('-');
+    let aY = parts[0];
+    let aM = parts[1];
+    
+    if (year !== 'all' && aY !== String(year)) return false;
+    if (month !== 'all' && aM !== String(month)) return false;
+    return true;
+  });
+
+  let filterHtml = generateDateFilter('inv', `openInvoice('${farmerName}')`, year, month);
+  let html = `<div style="text-align:center;margin-bottom:15px;">
+    <h3 style="font-size:16px;">포천시 계절근로자 이용 청구서</h3>
+    <p style="font-size:14px;color:#555">청구 대상: <b>${farmerName}</b> 농가 귀하</p>
+  </div>`;
+
+  if(!filtered.length) {
+    html += `<p style="text-align:center;padding:20px;font-size:14px;color:#666;">해당 기간에 청구(배정완료) 내역이 없습니다.</p>`;
+  } else {
+    let totalSum = 0;
+    html += `<div class="scrollable-table-wrap"><table class="invoice-table">
+      <thead><tr><th>작업일자</th><th>배정인원</th><th>연장시간</th><th>일 청구금액</th></tr></thead><tbody>`;
+    filtered.forEach(a => {
+      let count = a.selectedWorkerIds.length;
+      let p = a.totalPrice || (count * BASE_DAILY_PRICE);
+      totalSum += p;
+      html += `<tr><td>${a.date}</td><td>${count}명</td><td>${a.overtimeHours||0}시간</td><td>₩${p.toLocaleString()}</td></tr>`;
+    });
+    html += `</tbody></table></div>
+    <div style="text-align:right;font-size:18px;font-weight:bold;margin-top:20px;color:#168b43">총 청구 금액: ₩${totalSum.toLocaleString()}</div>`;
+  }
+
+  document.getElementById('modalTitle').textContent = `청구서 (${farmerName})`;
+  document.getElementById('invoiceFilterArea').innerHTML = filterHtml;
+  document.getElementById('invoiceContent').innerHTML = html;
+  document.getElementById('modalShareBtn').style.display = 'none';
+  document.getElementById('modalPrintBtn').style.display = 'inline-block';
+  document.getElementById('modalPdfBtn').style.display = 'inline-block';
+  document.getElementById('invoiceModal').style.display = 'flex';
+}
+
+async function showWorkerStats(forceYear, forceMonth) {
+  const yEl = document.getElementById('statYear');
+  const mEl = document.getElementById('statMonth');
+  
+  let year = yEl ? yEl.value : (forceYear || 'all');
+  let month = mEl ? mEl.value : (forceMonth || 'all');
+
+  let workers = getWorkerList();
+  const apps = await apiFetch('/apps', 'GET') || [];
+
+  let filterHtml = generateDateFilter('stat', 'showWorkerStats()', year, month);
+  let html = `<p style="font-size:14px;color:#666;">근로자별 근무 실적 기반 명세서 (ໃບແຈ້ງເງິນເດືອນ)</p>
+  <div class="scrollable-table-wrap"><table class="invoice-table">
+    <thead><tr><th>ID</th><th>성명 (Name)</th><th>호칭</th><th>근무일수</th><th>근무시간</th><th>상세 명세서</th></tr></thead><tbody>`;
+
+  workers.forEach(w => {
+    let days = 0, overHours = 0;
+    apps.filter(a => a.status === '배정완료').forEach(a => {
+      if(!a.date) return;
+      let [aY, aM] = a.date.split('-');
+      if (year !== 'all' && aY !== String(year)) return;
+      if (month !== 'all' && aM !== String(month)) return;
+
+      if(a.selectedWorkerIds && a.selectedWorkerIds.includes(w.id)) {
+        days += 1; overHours += (a.overtimeHours || 0);
+      }
+    });
+
+    html += `<tr>
+      <td>${w.id}</td><td><b>${w.name}</b></td><td>${w.callName || '-'}</td>
+      <td>${days}일</td><td>${(days * BASE_DAILY_HOURS) + overHours}시간</td>
+      <td><button class="mini" onclick="openWorkerPayDetail('${w.id}', '${w.name}', '${w.callName}', '${year}', '${month}')">명세서 보기</button></td>
+    </tr>`;
+  });
+
+  html += `</tbody></table></div>`;
+  document.getElementById('modalTitle').textContent = '급여 명세 관리';
+  document.getElementById('invoiceFilterArea').innerHTML = filterHtml;
+  document.getElementById('invoiceContent').innerHTML = html;
+  document.getElementById('modalShareBtn').style.display = 'none';
+  document.getElementById('modalPrintBtn').style.display = 'none';
+  document.getElementById('modalPdfBtn').style.display = 'none';
+  document.getElementById('invoiceModal').style.display = 'flex';
+}
+
+async function openWorkerPayDetail(workerId, name, callName, year, month) {
+  const apps = await apiFetch('/apps', 'GET') || [];
+  
+  let days = 0, overHours = 0;
+  let workHistoryHtml = `<div class="scrollable-table-wrap"><table class="invoice-table" style="margin-top:5px;">
+    <thead><tr><th>작업일자</th><th>농가명</th><th>기본(시간)</th><th>연장(시간)</th></tr></thead><tbody>`;
+
+  apps.filter(a => a.status === '배정완료' && a.selectedWorkerIds && a.selectedWorkerIds.includes(workerId)).forEach(a => {
+    if(!a.date) return;
+    let [aY, aM] = a.date.split('-');
+    if (year !== 'all' && aY !== String(year)) return;
+    if (month !== 'all' && aM !== String(month)) return;
+
+    days += 1; 
+    let oh = a.overtimeHours || 0;
+    overHours += oh;
+    workHistoryHtml += `<tr><td>${a.date}</td><td><b>${a.farmerName}</b></td><td>${BASE_DAILY_HOURS}</td><td>${oh}</td></tr>`;
+  });
+
+  workHistoryHtml += `</tbody></table></div>`;
+  if(days === 0) workHistoryHtml = `<p style="text-align:center;padding:10px;font-size:14px;color:#666;">해당 기간에 근무 내역이 없습니다.</p>`;
+
+  let basePay = days * BASE_DAILY_PRICE;
+  let overPay = overHours * OVERTIME_HOURLY_WAGE;
+  let totalPay = basePay + overPay;
+  let periodStr = (year==='all' && month==='all') ? '전체 기간' : `${year==='all'?'':year+'년'} ${month==='all'?'':month+'월'}`;
+
+  let html = `<button class="mini" style="margin-bottom:15px;font-size:14px;" onclick="showWorkerStats('${year}','${month}')">⬅️ 뒤로가기</button>
+  <div style="border:2px solid #168b43;padding:20px;border-radius:10px;background:#fcfdfd;">
+    <h3 style="text-align:center;color:#168b43;margin-top:0;font-size:18px;">ໃບແຈ້ງເງິນເດືອນ (급여명세서)</h3>
+    <p style="text-align:center;font-size:14px;margin:5px 0;"><b>근로자:</b> ${name} (${callName}) | <b>기간:</b> ${periodStr}</p>
+    
+    <div style="margin:15px 0;">
+      <b style="font-size:15px;">📝 상세 근무 내역 (ລາຍລະອຽດວຽກ)</b>
+      ${workHistoryHtml}
+    </div>
+
+    <hr style="border:0;border-top:1px dashed #ccc;margin:15px 0;">
+    <table style="width:100%;font-size:14px;line-height:2.2;">
+      <tr><td>기본 근무일수 (ວັນເຮັດວຽກ):</td><td style="text-align:right"><b>${days} 일</b></td></tr>
+      <tr><td>연장 근무시간 (ຊົ່ວໂມງເພີ່ມ):</td><td style="text-align:right"><b>${overHours} 시간</b></td></tr>
+      <tr><td>기본급 (${BASE_DAILY_HOURS}시간 기준):</td><td style="text-align:right">₩${basePay.toLocaleString()}</td></tr>
+      <tr><td>연장 수당 (ເງິນໂອທີ):</td><td style="text-align:right">₩${overPay.toLocaleString()}</td></tr>
+      <tr style="font-size:16px;color:#168b43;font-weight:bold;"><td style="padding-top:10px">실수령액 (ເງິນສຸດທິ):</td><td style="text-align:right;padding-top:10px">₩${totalPay.toLocaleString()}</td></tr>
+    </table>
+  </div>`;
+  
+  document.getElementById('modalTitle').textContent = '상세 급여 명세서';
+  document.getElementById('invoiceContent').innerHTML = html;
+  document.getElementById('modalShareBtn').style.display = 'none';
+  document.getElementById('modalPrintBtn').style.display = 'inline-block';
+  document.getElementById('modalPdfBtn').style.display = 'inline-block';
+}
+
+function downloadPdfNotice() {
+  alert('인쇄 창이 나타나면 대상 프린터를 [PDF로 저장]으로 선택해 주세요.');
+  window.print();
+}
+
+async function exportCombinedExcel() {
+  const apps = await apiFetch('/apps', 'GET') || [];
+  if(!apps.length) { alert('데이터가 없습니다.'); return; }
+  const excelData = apps.map(a => {
+    let assignedCount = (a.selectedWorkerIds && a.selectedWorkerIds.length > 0) ? a.selectedWorkerIds.length : 0;
+    return {
+      '접수번호': a.no, '신청일자': a.date, '농장주': a.farmerName, '신청인원': a.qty, '배정인원': assignedCount,
+      '연장근무(시간)': a.overtimeHours || 0, '총정산금액': (a.status === '배정완료' && assignedCount > 0) ? (a.totalPrice || (assignedCount * BASE_DAILY_PRICE)) : 0, '상태': a.status
+    };
+  });
+  const ws = XLSX.utils.json_to_sheet(excelData);
+  const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, "통합정산표");
+  XLSX.writeFile(wb, `포천시_계절근로자_통합정산.xlsx`);
+}
+
+function handleExcelUpload(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(evt) {
+    const wb = XLSX.read(new Uint8Array(evt.target.result), {type: 'array'});
+    const rows = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]]);
+    
+    let newWorkers = rows.map((r, i) => ({ 
+      id: `W${String(i+1).padStart(3, '0')}`, 
+      name: r['근로자명'] || r['이름'] || r['성명'] || '미상', 
+      callName: r['콜네임'] || r['호칭'] || r['별명'] || '', 
+      gender: r['성별'] || r['Gender'] || '남' 
+    }));
+    
+    if(newWorkers.length > 0) { 
+      saveWorkerList(newWorkers); 
+      renderAdmin(); 
+      alert('근로자 명단이 성공적으로 업로드 및 반영되었습니다.'); 
+    }
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+function createSampleData() {
+  const now = new Date();
+  const nextMonthObj = new Date(now.getFullYear(), now.getMonth() + 1, 10);
+  const nextMonthObj2 = new Date(now.getFullYear(), now.getMonth() + 1, 15);
+  const nextMonthObj3 = new Date(now.getFullYear(), now.getMonth() + 2, 1);
+
+  const formatDate = (d) => {
+    let y = d.getFullYear();
+    let m = String(d.getMonth() + 1).padStart(2, '0');
+    let day = String(d.getDate()).padStart(2, '0');
+    return `${y}-${m}-${day}`;
+  };
+
+  const sampleApps = {
+    apps: [
+      { no: 'REC-2026-001', date: formatDate(nextMonthObj), farmerName: '김포천', phone: '010-1111-2222', address: '경기도 포천시 영중면 성동리', work: '사과 수확 및 과수원 정리', qty: 2, status: '배정완료', selectedWorkerIds: ['W001', 'W002'], overtimeHours: 2, totalPrice: (2 * BASE_DAILY_PRICE) + (2 * 2 * OVERTIME_HOURLY_WAGE) },
+      { no: 'REC-2026-002', date: formatDate(nextMonthObj2), farmerName: '이오성', phone: '010-3333-4444', address: '경기도 포천시 이동면 장암리', work: '고추밭 비닐 고르기', qty: 3, status: '접수대기', selectedWorkerIds: [], overtimeHours: 0, totalPrice: 0 },
+      { no: 'REC-2026-003', date: formatDate(nextMonthObj3), farmerName: '박일손', phone: '010-5555-6666', address: '경기도 포천시 신북면 삼정리', work: '인삼밭 차광막 설치', qty: 2, status: '배정완료', selectedWorkerIds: ['W003', 'W004'], overtimeHours: 0, totalPrice: 2 * BASE_DAILY_PRICE }
+    ]
+  };
+  localStorage.setItem(KEY, JSON.stringify(sampleApps));
+  renderAdmin();
+  alert('샘플 데이터가 생성되었습니다.');
+}
+
+async function editHours(i){
+  const apps = await apiFetch('/apps', 'GET') || [];
+  let over = prompt('추가 연장 근무 시간을 입력해 주세요 (시간)', apps[i].overtimeHours || 0);
+  if (over !== null) {
+    let overH = parseFloat(over) || 0;
+    let currentApps = JSON.parse(localStorage.getItem(KEY) || '{"apps":[]}');
+    if (currentApps.apps && currentApps.apps[i]) {
+      currentApps.apps[i].overtimeHours = overH;
+      let count = (currentApps.apps[i].selectedWorkerIds && currentApps.apps[i].selectedWorkerIds.length > 0) ? currentApps.apps[i].selectedWorkerIds.length : currentApps.apps[i].qty;
+      currentApps.apps[i].totalPrice = (count * BASE_DAILY_PRICE) + (count * overH * OVERTIME_HOURLY_WAGE);
+      localStorage.setItem(KEY, JSON.stringify(currentApps));
+    }
+    renderAdmin();
+  }
+}
+
+async function cancelAppByAdmin(i) {
+  if (confirm('정말 취소하시겠습니까?')) { 
+    let currentApps = JSON.parse(localStorage.getItem(KEY) || '{"apps":[], "workers":[] }');
+    if (currentApps.apps && currentApps.apps[i]) {
+      currentApps.apps[i].status = '취소';
+      currentApps.apps[i].selectedWorkerIds = [];
+      currentApps.apps[i].totalPrice = 0;
+      localStorage.setItem(KEY, JSON.stringify(currentApps));
+    }
+    renderAdmin(); 
+  }
+}
+
+function closeInvoice(){ document.getElementById('invoiceModal').style.display = 'none'; }
+function clearData(){ if(confirm('정말 전체 데이터를 초기화하시겠습니까?')){ localStorage.clear(); location.reload(); } }
+</script>
+</body>
+</html>
