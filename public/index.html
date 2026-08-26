@@ -123,7 +123,21 @@ const defaultWorkers = [
   { id: 'W005', name: 'HER YENG', callName: '영', gender: '남성' }
 ];
 
+async function fetchWorkersFromDB() {
+  try {
+    const { data, error } = await _supabase.from('workers').select('*').order('id', { ascending: true });
+    if (!error && data && data.length > 0) {
+      localStorage.setItem(WORKER_KEY, JSON.stringify(data));
+      return data;
+    }
+  } catch(e) {
+    console.log('Workers fetch fallbacked to localstorage', e);
+  }
+  return JSON.parse(localStorage.getItem(WORKER_KEY) || JSON.stringify(defaultWorkers));
+}
+
 function getWorkerList() { return JSON.parse(localStorage.getItem(WORKER_KEY) || JSON.stringify(defaultWorkers)); }
+
 function loadNotice() {
   const data = JSON.parse(localStorage.getItem(NOTICE_KEY) || JSON.stringify(defaultNotice));
   document.getElementById('displayNoticeTitle').textContent = data.title;
@@ -188,7 +202,7 @@ async function apiFetch(endpoint, method = 'GET', body = null) {
 }
 
 async function getAvailableCount(dt) {
-  workers = getWorkerList();
+  workers = await fetchWorkersFromDB();
   const data = await apiFetch('/apps', 'GET');
   const apps = data.apps || [];
   let used = apps.filter(a => a.date === dt && a.status !== '취소').reduce((n, a) => n + Number(a.qty), 0);
@@ -199,6 +213,7 @@ function changeMonth(diff){ currentMonth += diff; if(currentMonth > 12) { curren
 function daysInMonth(y, m){ return new Date(y, m, 0).getDate(); }
 
 async function renderCalendar(){
+  workers = await fetchWorkersFromDB();
   document.getElementById('calTitle').textContent = `${currentYear}년 ${currentMonth}월`;
   let s = ''; ['일','월','화','수','목','금','토'].forEach(x => s += `<div class="head">${x}</div>`);
   const firstDayIndex = new Date(currentYear, currentMonth - 1, 1).getDay();
@@ -257,7 +272,7 @@ async function pickDate(dt){
 }
 
 async function renderWorkers(){
-  workers = getWorkerList();
+  workers = await fetchWorkersFromDB();
   const data = await apiFetch('/apps', 'GET');
   const apps = data.apps || [];
   const lockedSet = new Set();
@@ -397,7 +412,7 @@ async function cancelAppByUser(appNo) {
       target.status = '취소';
       target.selectedWorkerIds = [];
       target.workers = [];
-      localStorage.setItem(KEY, JSON.stringify(currentApps));
+      localStorage.setItem(KEY, JSON.stringify(target));
     }
     await apiFetch(`/apps/${idx}`, 'PUT', { no: appNo, status: '취소', selectedWorkerIds: [], workers: [] });
     closeInvoice(); 
@@ -408,7 +423,13 @@ async function cancelAppByUser(appNo) {
 function closeInvoice(){ document.getElementById('invoiceModal').style.display = 'none'; }
 
 document.getElementById('clock').textContent = new Date().toLocaleDateString('ko-KR');
-loadNotice(); renderCalendar(); renderWorkers(); updatePrice();
+async function initApp() {
+  loadNotice();
+  await renderCalendar();
+  await renderWorkers();
+  updatePrice();
+}
+initApp();
 </script>
 </body>
 </html>
