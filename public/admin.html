@@ -119,6 +119,12 @@ label{display:block;font-weight:700;margin:0 0 8px}.field{margin-bottom:17px} in
 </div>
 
 <script>
+  // URL 끝에 /rest/v1/ 을 제거해야 정상적으로 통신됩니다.
+const SUPABASE_URL = 'https://dcdxzofzkvdbppsetarb.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRjZHh6b2Z6a3ZkYnBwc2V0YXJiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc1NzIzNzAsImV4cCI6MjEwMzE0ODM3MH0.g53YpeDm7XVQyLxDOTYa3n1pJ_xeyNAtdvgbpLZ4DZI';
+
+// Supabase 클라이언트 생성
+const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 const API_BASE_URL = '/api'; 
 const KEY = 'seasonWorkerPrototype_v1';
 const WORKER_KEY = 'seasonWorkers_master_v1';
