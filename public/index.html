@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>포천시 위탁형 계절근로자 신청</title>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 *{box-sizing:border-box} body{margin:0;font-family:Arial,"Noto Sans KR",sans-serif;background:#eef5fb;color:#111}
 button,input,textarea,select{font:inherit} .app{max-width:1100px;margin:auto;background:#fff;min-height:100vh}
@@ -97,17 +96,6 @@ label{display:block;font-weight:700;margin:0 0 8px}.field{margin-bottom:17px} in
 </div>
 
 <script>
-// ==========================================
-// 1. Supabase 연동 인프라 설정
-// ==========================================
-const SUPABASE_URL = 'https://dcdxzofzkvdbppsetarb.supabase.co';
-const SUPABASE_KEY = 'sb_publishable_P1lggn1w86lMEmVhHXqYzQ_cNEHoZsm';
-let supabaseClient = null;
-
-if (typeof supabase !== 'undefined') {
-  supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-}
-
 const API_BASE_URL = '/api'; 
 const KEY = 'seasonWorkerPrototype_v1';
 const WORKER_KEY = 'seasonWorkers_master_v1';
@@ -171,57 +159,26 @@ function showAlert(icon, title, body, callback = null) {
 }
 function closeAlertAndReset() { document.getElementById('alertModal').style.display = 'none'; if (pendingResetCallback) { pendingResetCallback(); pendingResetCallback = null; } }
 
-// ==========================================
-// 2. Supabase 연동 지원 API Fetch 함수
-// ==========================================
 async function apiFetch(endpoint, method = 'GET', body = null) {
-  if (supabaseClient) {
-    try {
-      if (endpoint === '/apps' && method === 'GET') {
-        const { data, error } = await supabaseClient.from('applications').select('*');
-        if (!error && data) {
-          localStorage.setItem(KEY, JSON.stringify({ apps: data }));
-          return data;
-        }
-      }
-      if (endpoint === '/apps' && method === 'POST') {
-        const { error } = await supabaseClient.from('applications').insert([body]);
-        if (!error) {
-          let d = JSON.parse(localStorage.getItem(KEY) || '{"apps":[]}');
-          d.apps.push(body);
-          localStorage.setItem(KEY, JSON.stringify(d));
-          return { success: true };
-        }
-      }
-      if (endpoint.startsWith('/apps/') && method === 'PUT') {
-        let d = JSON.parse(localStorage.getItem(KEY) || '{"apps":[]}');
-        const idx = parseInt(endpoint.split('/')[2]);
-        if (d.apps[idx]) {
-          const appNo = d.apps[idx].no;
-          const { error } = await supabaseClient.from('applications').update(body).eq('no', appNo);
-          if (!error) {
-            Object.assign(d.apps[idx], body);
-            localStorage.setItem(KEY, JSON.stringify(d));
-            return { success: true };
-          }
-        }
-      }
-    } catch (e) {
-      console.error('Supabase 통신 예외 발생 (LocalStorage 대체 진행):', e);
+  try {
+    const options = { method, headers: { 'Content-Type': 'application/json' } };
+    if (body) options.body = JSON.stringify(body);
+    const res = await fetch(`${API_BASE_URL}${endpoint}`, options);
+    if (!res.ok) throw new Error();
+    return await res.json();
+  } catch (e) {
+    let d = JSON.parse(localStorage.getItem(KEY) || '{"apps":[]}');
+    if (endpoint === '/apps' && method === 'GET') return d.apps || [];
+    if (endpoint === '/apps' && method === 'POST') { d.apps.push(body); localStorage.setItem(KEY, JSON.stringify(d)); return { success: true }; }
+    if (endpoint.startsWith('/apps/') && method === 'PUT') {
+      const idx = parseInt(endpoint.split('/')[2]);
+      if (d.apps[idx]) { Object.assign(d.apps[idx], body); localStorage.setItem(KEY, JSON.stringify(d)); }
+      return { success: true };
     }
-  }
-
-  // Supabase 비활성화 또는 연결 실패 시 로컬스토리지 복구 작동
-  let d = JSON.parse(localStorage.getItem(KEY) || '{"apps":[]}');
-  if (endpoint === '/apps' && method === 'GET') return d.apps || [];
-  if (endpoint === '/apps' && method === 'POST') { d.apps.push(body); localStorage.setItem(KEY, JSON.stringify(d)); return { success: true }; }
-  if (endpoint.startsWith('/apps/') && method === 'PUT') {
-    const idx = parseInt(endpoint.split('/')[2]);
-    if (d.apps[idx]) { Object.assign(d.apps[idx], body); localStorage.setItem(KEY, JSON.stringify(d)); }
-    return { success: true };
   }
 }
 
+// 해당 날짜의 실제 '남은 신청가능 인원 수'를 계산해주는 함수
 async function getAvailableCount(dt) {
   workers = getWorkerList();
   const apps = await apiFetch('/apps', 'GET') || [];
@@ -304,6 +261,7 @@ async function renderWorkers(){
   }).join('');
 }
 
+// [개선된 선호 근로자 토글 함수: 잔여 수량 초과 지명 차단]
 async function toggleWorker(id){
   let availCount = await getAvailableCount(selectedDate);
   let i = selectedWorkers.indexOf(id);
@@ -324,6 +282,7 @@ async function toggleWorker(id){
   renderWorkers();
 }
 
+// [개선된 신청 인원 수량 변경 함수: 잔여 수량 초과 신청 차단]
 async function changeQty(n){ 
   let availCount = await getAvailableCount(selectedDate);
   let minQty = selectedWorkers.length || 1;
@@ -359,6 +318,7 @@ async function submitApplication(){
   showAlert('🎉', '신청 완료!', `접수번호: <b style="color:#168b43">${no}</b><br>예정일: ${selectedDate}`, resetForm);
 }
 
+// [다중 검색 조회 함수]
 async function lookup(){
   let p = prompt('접수번호, 전화번호, 또는 농장주명을 입력해 주세요.'); 
   if(!p || !p.trim()) return;
