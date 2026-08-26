@@ -166,23 +166,49 @@ function showAlert(icon, title, body, callback = null) {
 }
 function closeAlertAndReset() { document.getElementById('alertModal').style.display = 'none'; if (pendingResetCallback) { pendingResetCallback(); pendingResetCallback = null; } }
 
+// Supabase 설정 및 클라이언트 생성
+const SUPABASE_URL = 'https://dcdxzofzkvdbppsetarb.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRjZHh6b2Z6a3ZkYnBwc2V0YXJiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc1NzIzNzAsImV4cCI6MjEwMzE0ODM3MH0.g53YpeDm7XVQyLxDOTYa3n1pJ_xeyNAtdvgbpLZ4DZI';
+
+const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+// Supabase 기반 apiFetch 함수
 async function apiFetch(endpoint, method = 'GET', body = null) {
   try {
-    const options = { method, headers: { 'Content-Type': 'application/json' } };
-    if (body) options.body = JSON.stringify(body);
-    const res = await fetch(`${API_BASE_URL}${endpoint}`, options);
-    if (!res.ok) throw new Error();
-    return await res.json();
-  } catch (e) {
-    let d = JSON.parse(localStorage.getItem(KEY) || '{"apps":[]}');
-    if (endpoint === '/apps' && method === 'GET') return d.apps || [];
-    if (endpoint === '/apps' && method === 'POST') { d.apps.push(body); localStorage.setItem(KEY, JSON.stringify(d)); return { success: true }; }
-    if (endpoint.startsWith('/apps/') && method === 'PUT') {
-      const idx = parseInt(endpoint.split('/')[2]);
-      if (d.apps[idx]) { Object.assign(d.apps[idx], body); localStorage.setItem(KEY, JSON.stringify(d)); }
+    if (endpoint === '/apps' && method === 'GET') {
+      const { data, error } = await _supabase
+        .from('apps')
+        .select('*')
+        .order('id', { ascending: true });
+
+      if (error) throw error;
+      return data || [];
+    }
+
+    if (endpoint === '/apps' && method === 'POST') {
+      const { data, error } = await _supabase
+        .from('apps')
+        .insert([body]);
+
+      if (error) throw error;
       return { success: true };
     }
+
+    if (endpoint.startsWith('/apps/') && method === 'PUT') {
+      const { data, error } = await _supabase
+        .from('apps')
+        .update(body)
+        .eq('no', body.no);
+
+      if (error) throw error;
+      return { success: true };
+    }
+
+  } catch (e) {
+    console.error('Supabase 연동 에러:', e);
+    return [];
   }
+}
 }
 
 // 해당 날짜의 실제 '남은 신청가능 인원 수'를 계산해주는 함수
