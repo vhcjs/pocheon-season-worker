@@ -17,10 +17,13 @@ main{padding:28px 20px}.admin{max-width:1200px;margin:auto}.title{text-align:cen
 .stat-card{background:#f8f9fa;border:1px solid #e9ecef;padding:15px;border-radius:10px;text-align:center}
 .stat-card .val{font-size:22px;font-weight:800;color:#168b43;margin-top:4px}
 label{display:block;font-weight:700;margin:0 0 8px}.field{margin-bottom:17px} input,textarea,select{width:100%;padding:13px;border:1px solid #d5d5d5;border-radius:8px;background:#fff} textarea{min-height:90px;resize:vertical}
-.actions{display:flex;gap:10px}.primary,.secondary,.pdf-btn{border:0;border-radius:8px;padding:12px 18px;cursor:pointer;font-weight:700}.primary{background:#00a83b;color:#fff;flex:1}.secondary{background:#eee;color:#333}.pdf-btn{background:#dc3545;color:#fff;}
-.toolbar{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:18px;align-items:center}
-.toolbar-btn{height:46px;padding:0 18px;border:1px solid transparent;border-radius:8px;font-weight:800;font-size:14px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;white-space:nowrap;margin:0;box-shadow:0 1px 3px rgba(0,0,0,0.08)}
+
+/* 버튼 정렬 툴바 개선 */
+.toolbar{display:grid;grid-template-columns:repeat(auto-fit, minmax(180px, 1fr));gap:10px;margin-bottom:18px;align-items:center}
+.toolbar-btn{height:46px;padding:0 14px;border:1px solid transparent;border-radius:8px;font-weight:800;font-size:14px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;white-space:nowrap;margin:0;box-shadow:0 1px 3px rgba(0,0,0,0.08);text-align:center;}
 .toolbar-btn.excel{background:#0d6efd;color:#fff}.toolbar-btn.upload{background:#198754;color:#fff}.toolbar-btn.stats{background:#6f42c1;color:#fff}.toolbar-btn.sample{background:#fd7e14;color:#fff}.toolbar-btn.reset{background:#dc3545;color:#fff}.toolbar-btn.preview{background:#20c997;color:#fff}
+
+.actions{display:flex;gap:10px;flex-wrap:wrap;}.primary,.secondary,.pdf-btn{border:0;border-radius:8px;padding:12px 18px;cursor:pointer;font-weight:700}.primary{background:#00a83b;color:#fff;flex:1}.secondary{background:#eee;color:#333}.pdf-btn{background:#dc3545;color:#fff;}
 
 .table-wrap{overflow-x:auto;border:1px solid #ddd;border-radius:10px}
 .table{width:100%;border-collapse:collapse;min-width:1150px}
@@ -33,34 +36,34 @@ label{display:block;font-weight:700;margin:0 0 8px}.field{margin-bottom:17px} in
 .mini{padding:6px 12px;border:1px solid #ccc;background:#fff;border-radius:6px;cursor:pointer;font-weight:700;white-space:nowrap;display:inline-flex;align-items:center;justify-content:center;line-height:1.2;margin:2px 0;font-size:13px;}
 .badge{display:inline-block;padding:5px 10px;border-radius:20px;background:#eee;font-size:13px;white-space:nowrap;}.badge.done{background:#dff5e6;color:#08752f}.badge.wait{background:#fff3cd;color:#8a6500}.badge.cancel{background:#f8d7da;color:#721c24}
 .tag-new{display:inline-block;padding:2px 6px;border-radius:4px;background:#e63946;color:#fff;font-size:11px;font-weight:bold;margin-left:4px;vertical-align:middle;}
-.modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);align-items:center;justify-content:center;z-index:9999;padding:20px 0;}
-.invoice-box{background:#fff;padding:30px;border-radius:12px;width:90%;max-width:850px;box-shadow:0 4px 20px rgba(0,0,0,0.2);max-height:85vh;overflow-y:auto;font-size:14px;margin:auto;}
 
-.scrollable-table-wrap { width: 100%; overflow-x: auto; margin: 15px 0; border: 1px solid #ddd; border-radius: 8px; }
-.invoice-table{width:100%;border-collapse:collapse;min-width:600px;}
-.invoice-table th,.invoice-table td{border:1px solid #ddd;padding:10px;text-align:center;font-size:14px;white-space:nowrap;}
+/* 공통 창 모달 백그라운드 */
+.modal-overlay{display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.5);z-index:9998;}
 
-.login-box{background:#fff;padding:30px;border-radius:12px;width:90%;max-width:380px;text-align:center;box-shadow:0 10px 25px rgba(0,0,0,0.3)}
-.filter-row {display:flex;gap:10px;align-items:center;margin-bottom:15px;background:#f8f9fa;padding:12px;border-radius:8px;border:1px solid #ddd;font-size:14px;flex-wrap:wrap;}
-.filter-row select {width:auto;padding:8px;border-radius:6px;border:1px solid #ccc;font-size:14px;}
-
-/* 이동 가능 PC버전 신청자 페이지 미리보기 팝업 */
-#previewWindow {
+/* 드래그 및 크기조절 가능한 통합 모달 창 스타일 */
+.resizable-modal {
   display: none;
   position: fixed;
-  top: 40px;
-  left: calc(50% - 500px);
-  width: 1000px;
-  height: 750px;
+  top: 50px;
+  left: calc(50% - 400px);
+  width: 800px;
+  height: 600px;
   background: #fff;
   border-radius: 12px;
   box-shadow: 0 12px 36px rgba(0,0,0,0.35);
-  z-index: 10000;
+  z-index: 9999;
   flex-direction: column;
   overflow: hidden;
   border: 1px solid #bbb;
+  resize: both;
+  min-width: 320px;
+  min-height: 400px;
+  max-width: 98vw;
+  max-height: 95vh;
 }
-.preview-header {
+
+/* 팝업 헤더 (드래그 핸들) */
+.modal-drag-header {
   background: #168b43;
   color: #fff;
   padding: 12px 20px;
@@ -70,10 +73,34 @@ label{display:block;font-weight:700;margin:0 0 8px}.field{margin-bottom:17px} in
   justify-content: space-between;
   align-items: center;
   user-select: none;
+  flex-shrink: 0;
 }
-.preview-body { flex: 1; border: none; width: 100%; height: 100%; }
+.modal-drag-header button { background:none; border:none; color:#fff; font-size:18px; cursor:pointer; }
 
-/* 농가 상세 프로필 카드 (선호도 분석) */
+/* 팝업 바디 */
+.modal-drag-body {
+  flex: 1;
+  padding: 20px;
+  overflow-y: auto;
+  font-size: 14px;
+}
+
+/* PC화면 미리보기 팝업 특화 스타일 */
+#previewWindow {
+  width: 1000px;
+  height: 750px;
+  left: calc(50% - 500px);
+  top: 30px;
+}
+
+.scrollable-table-wrap { width: 100%; overflow-x: auto; margin: 15px 0; border: 1px solid #ddd; border-radius: 8px; }
+.invoice-table{width:100%;border-collapse:collapse;min-width:600px;}
+.invoice-table th,.invoice-table td{border:1px solid #ddd;padding:10px;text-align:center;font-size:14px;white-space:nowrap;}
+
+.login-box{background:#fff;padding:30px;border-radius:12px;width:90%;max-width:380px;text-align:center;box-shadow:0 10px 25px rgba(0,0,0,0.3)}
+.filter-row {display:flex;gap:10px;align-items:center;margin-bottom:15px;background:#f8f9fa;padding:12px;border-radius:8px;border:1px solid #ddd;font-size:14px;flex-wrap:wrap;}
+.filter-row select {width:auto;padding:8px;border-radius:6px;border:1px solid #ccc;font-size:14px;}
+
 .farmer-profile-card {
   background: #f8f9fa;
   border: 1px solid #e2e8f0;
@@ -81,14 +108,13 @@ label{display:block;font-weight:700;margin:0 0 8px}.field{margin-bottom:17px} in
   padding: 16px;
   margin-bottom: 16px;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
   gap: 12px;
 }
 .farmer-profile-item { background: #fff; border: 1px solid #edf2f7; padding: 12px; border-radius: 8px; }
 .farmer-profile-item label { color: #64748b; font-size: 12px; margin-bottom: 4px; }
 .farmer-profile-item div { font-weight: bold; color: #1e293b; font-size: 14px; }
 
-/* 실시간 알림 토스트 팝업 */
 .toast-alert {
   position: fixed;
   bottom: 25px;
@@ -104,22 +130,31 @@ label{display:block;font-weight:700;margin:0 0 8px}.field{margin-bottom:17px} in
 }
 @keyframes slideUp { from { transform: translateY(50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
 
+/* 모바일 전용 반응형 팝업 스타일 */
+@media (max-width: 768px) {
+  .resizable-modal {
+    width: 95vw !important;
+    height: 85vh !important;
+    left: 2.5vw !important;
+    top: 5vh !important;
+  }
+}
+
 @media print {
   body * { visibility: hidden; }
   #invoiceModal, #invoiceModal * { visibility: visible; }
-  #invoiceModal { position: absolute; left: 0; top: 0; width: 100%; height: auto; background: none; }
-  .invoice-box { box-shadow: none; max-height: none; width: 100%; padding: 0; }
-  .actions { display: none !important; }
+  #invoiceModal { position: absolute; left: 0; top: 0; width: 100%; height: auto; background: none; border:none; box-shadow:none; }
+  .modal-drag-header, .actions { display: none !important; }
   .scrollable-table-wrap { overflow: visible !important; border: none !important; }
 }
 </style>
 </head>
 <body>
 
-<div id="loginModal" class="modal" style="display:flex">
-  <div class="login-box">
-    <h2 style="margin-top:0;color:#168b43">🔒 관리자 로그인</h2>
-    <p style="font-size:14px;color:#666">관리자 계정 정보를 입력해 주세요.</p>
+<div id="loginModal" class="resizable-modal" style="display:flex; width:380px; height:auto; left:calc(50% - 190px); top:20vh; resize:none;">
+  <div style="padding:30px; width:100%;">
+    <h2 style="margin-top:0;color:#168b43;text-align:center;">🔒 관리자 로그인</h2>
+    <p style="font-size:14px;color:#666;text-align:center;">관리자 계정 정보를 입력해 주세요.</p>
     <div class="field" style="text-align:left"><label>아이디</label><input id="adminId" value="admin"></div>
     <div class="field" style="text-align:left"><label>비밀번호</label><input type="password" id="adminPw" placeholder="비밀번호 입력"></div>
     <div style="text-align:left;margin-bottom:15px;font-size:14px;color:#444;">
@@ -150,13 +185,13 @@ label{display:block;font-weight:700;margin:0 0 8px}.field{margin-bottom:17px} in
 </div>
 
 <div class="toolbar">
-  <button class="toolbar-btn excel" onclick="exportCombinedExcel()">📊 통합 정산·급여집계표 (엑셀)</button>
+  <button class="toolbar-btn excel" onclick="exportCombinedExcel()">📊 통합 정산 (엑셀)</button>
   <label class="toolbar-btn upload">
-    📁 근로자 명단 엑셀 업로드
+    📁 근로자 명단 업로드
     <input type="file" id="excelUpload" accept=".xlsx, .xls" style="display:none" onchange="handleExcelUpload(event)">
   </label>
-  <button class="toolbar-btn stats" onclick="showWorkerStats()">👥 월별/연도별 급여명세서 (라오스어)</button>
-  <button class="toolbar-btn preview" onclick="toggleApplicantPreview()">🖥️ 신청자 PC화면 창 열기</button>
+  <button class="toolbar-btn stats" onclick="showWorkerStats()">👥 근로자 명세서</button>
+  <button class="toolbar-btn preview" onclick="toggleApplicantPreview()">🖥️ 신청자 PC창 열기</button>
   <button class="toolbar-btn sample" onclick="createSampleData()">🧪 샘플 데이터 생성</button>
   <button class="toolbar-btn reset" onclick="clearData()">전체 초기화</button>
 </div>
@@ -165,24 +200,15 @@ label{display:block;font-weight:700;margin:0 0 8px}.field{margin-bottom:17px} in
 </div></main>
 </div>
 
-<!-- 실시간 신규 신청 알림 팝업 -->
-<div id="toastAlert" class="toast-alert">
-  🔔 <b>신규 예약 접수!</b><br>
-  <span id="toastMsg">새로운 근로자 신청 건이 들어왔습니다.</span>
-</div>
+<!-- 이동 및 크기조절 가능한 통합 모달 창 -->
+<div id="modalOverlay" class="modal-overlay"></div>
 
-<!-- 이동 가능한 신청자 PC 화면 미리보기 창 -->
-<div id="previewWindow">
-  <div class="preview-header" id="previewHeader">
-    <span>🖥️ 신청자 접수 화면 (PC 모드 - 창 드래그 이동 가능)</span>
-    <button onclick="toggleApplicantPreview()" style="background:none;border:none;color:#fff;font-size:16px;cursor:pointer;">✕</button>
+<div id="invoiceModal" class="resizable-modal">
+  <div class="modal-drag-header" id="invoiceModalHeader">
+    <span id="modalTitle">상세내역</span>
+    <button onclick="closeInvoice()">✕</button>
   </div>
-  <iframe class="preview-body" src="about:blank" id="previewIframe"></iframe>
-</div>
-
-<div id="invoiceModal" class="modal">
-  <div class="invoice-box">
-    <h2 style="margin:0;color:#168b43;text-align:center" id="modalTitle">상세내역</h2>
+  <div class="modal-drag-body">
     <div id="invoiceFilterArea"></div>
     <div id="invoiceContent"></div>
     <div class="actions" style="margin-top:20px;justify-content:flex-end;">
@@ -192,6 +218,21 @@ label{display:block;font-weight:700;margin:0 0 8px}.field{margin-bottom:17px} in
       <button class="secondary" onclick="closeInvoice()">닫기</button>
     </div>
   </div>
+</div>
+
+<!-- 이동 및 크기조절 가능한 신청자 PC 모드 창 -->
+<div id="previewWindow" class="resizable-modal">
+  <div class="modal-drag-header" id="previewHeader">
+    <span>🖥️ 신청자 접수 화면 (창 드래그 이동 / 오른쪽 아래 크기 조절)</span>
+    <button onclick="toggleApplicantPreview()">✕</button>
+  </div>
+  <iframe style="flex:1; border:none; width:100%; height:100%;" src="about:blank" id="previewIframe"></iframe>
+</div>
+
+<!-- 실시간 신규 신청 알림 팝업 -->
+<div id="toastAlert" class="toast-alert">
+  🔔 <b>신규 예약 접수!</b><br>
+  <span id="toastMsg">새로운 근로자 신청 건이 들어왔습니다.</span>
 </div>
 
 <script>
@@ -225,7 +266,10 @@ window.addEventListener('DOMContentLoaded', () => {
     renderAdmin();
     initRealtimeSubscription();
   }
+  
+  // 모든 팝업창에 드래그 이동 기능 적용
   makeElementDraggable(document.getElementById("previewWindow"), document.getElementById("previewHeader"));
+  makeElementDraggable(document.getElementById("invoiceModal"), document.getElementById("invoiceModalHeader"));
 });
 
 function checkLogin() {
@@ -278,6 +322,7 @@ function toggleApplicantPreview() {
   }
 }
 
+/* 드래그 이동 함수 */
 function makeElementDraggable(elmnt, handle) {
   let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
   handle.onmousedown = dragMouseDown;
@@ -372,7 +417,6 @@ async function renderAdmin() {
   document.getElementById('statAppCount').textContent = `${apps.length} 건`;
   document.getElementById('statTotalPrice').textContent = `₩${totalSum.toLocaleString()}`;
 
-  // 농가별 과거 접수 횟수 계산 (전화번호 기준)
   const phoneCounts = {};
   apps.forEach(a => {
     if (a.phone) {
@@ -394,7 +438,6 @@ async function renderAdmin() {
       let createdAtStr = a.createdAt || a.created_at || '-';
       if (createdAtStr.length > 16) createdAtStr = createdAtStr.substring(0, 16).replace('T', ' ');
 
-      // 신규 여부 판단: 동일 전화번호로 접수된 건수가 1개뿐이면 신규로 판단
       const isNewFarmer = (phoneCounts[a.phone] || 0) <= 1;
       const newBadge = isNewFarmer ? `<span class="tag-new">신규</span>` : '';
 
@@ -422,7 +465,6 @@ async function renderAdmin() {
   document.getElementById('adminTable').innerHTML = html;
 }
 
-/* 누적 농가 신청 이력 및 선호 분석 팝업 */
 async function openFarmerHistoryModal(phone, farmerName) {
   const data = await apiFetch('/apps', 'GET');
   const apps = data.apps || [];
@@ -430,7 +472,6 @@ async function openFarmerHistoryModal(phone, farmerName) {
 
   const farmerApps = apps.filter(a => a.phone === phone || a.farmerName === farmerName);
   
-  // 선호 근로자 및 선호 성별 집계
   const workerCountMap = {};
   let maleWorkerCount = 0;
   let femaleWorkerCount = 0;
@@ -450,7 +491,6 @@ async function openFarmerHistoryModal(phone, farmerName) {
     });
   });
 
-  // 선호 근로자 상위 정렬
   let prefWorkersArr = Object.keys(workerCountMap).map(id => {
     const w = workers.find(x => x.id === id);
     const nameStr = w ? (w.callName ? `[${w.callName}] ${w.name}` : w.name) : id;
@@ -516,13 +556,7 @@ async function openFarmerHistoryModal(phone, farmerName) {
 
   html += `</tbody></table></div>`;
 
-  document.getElementById('modalTitle').textContent = `👤 농가 정보 및 신청 이력 [ ${farmerName} ]`;
-  document.getElementById('invoiceFilterArea').innerHTML = '';
-  document.getElementById('invoiceContent').innerHTML = html;
-  document.getElementById('modalShareBtn').style.display = 'none';
-  document.getElementById('modalPrintBtn').style.display = 'none';
-  document.getElementById('modalPdfBtn').style.display = 'none';
-  document.getElementById('invoiceModal').style.display = 'flex';
+  showModal(`👤 농가 정보 및 신청 이력 [ ${farmerName} ]`, '', html, false, false, false);
 }
 
 async function openAssignModal(appIndex) {
@@ -554,7 +588,7 @@ async function openAssignModal(appIndex) {
 
   let html = `<p style="font-size:14px;"><b>${item.farmerName} 농가 | 신청일: ${item.date} (신청요청 인원: ${item.qty}명)</b></p>
   <p style="font-size:13px;color:#d9534f;margin-top:-5px;">⚠️ 당일 타농가 배정 근로자는 선택 불가하며, 신청하신 인원 <b>${allowedQty}명</b>까지만 선택할 수 있습니다.</p>
-  <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;max-height:50vh;overflow-y:auto;padding:2px;" id="workerCheckboxContainer">`;
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;max-height:45vh;overflow-y:auto;padding:2px;" id="workerCheckboxContainer">`;
 
   workers.forEach(w => {
     let isChecked = currentSelected.has(w.id);
@@ -577,13 +611,7 @@ async function openAssignModal(appIndex) {
 
   html += `</div><button class="primary" style="margin-top:15px;width:100%;font-size:15px;" onclick="saveAssignment(${appIndex})">배정 저장하기</button>`;
 
-  document.getElementById('modalTitle').textContent = '계절근로자 배정 관리';
-  document.getElementById('invoiceFilterArea').innerHTML = '';
-  document.getElementById('invoiceContent').innerHTML = html;
-  document.getElementById('modalShareBtn').style.display = 'none';
-  document.getElementById('modalPrintBtn').style.display = 'none';
-  document.getElementById('modalPdfBtn').style.display = 'none';
-  document.getElementById('invoiceModal').style.display = 'flex';
+  showModal('계절근로자 배정 관리', '', html, false, false, false);
 }
 
 function validateWorkerSelection(maxAllowedQty) {
@@ -665,13 +693,7 @@ async function openShareModal(appIndex) {
     <button class="primary" onclick="copyShareText()" style="width:100%;background:#168b43;font-size:15px;">📋 공유 텍스트 클립보드 복사</button>
   </div>`;
 
-  document.getElementById('modalTitle').textContent = '예약 내용 공유';
-  document.getElementById('invoiceFilterArea').innerHTML = '';
-  document.getElementById('invoiceContent').innerHTML = html;
-  document.getElementById('modalShareBtn').style.display = 'none';
-  document.getElementById('modalPrintBtn').style.display = 'none';
-  document.getElementById('modalPdfBtn').style.display = 'none';
-  document.getElementById('invoiceModal').style.display = 'flex';
+  showModal('예약 내용 공유', '', html, false, false, false);
 }
 
 function copyShareText() {
@@ -760,13 +782,7 @@ async function openInvoice(farmerName, forceYear, forceMonth) {
     <div style="text-align:right;font-size:18px;font-weight:bold;margin-top:20px;color:#168b43">총 청구 금액: ₩${totalSum.toLocaleString()}</div>`;
   }
 
-  document.getElementById('modalTitle').textContent = `청구서 (${farmerName})`;
-  document.getElementById('invoiceFilterArea').innerHTML = filterHtml;
-  document.getElementById('invoiceContent').innerHTML = html;
-  document.getElementById('modalShareBtn').style.display = 'none';
-  document.getElementById('modalPrintBtn').style.display = 'inline-block';
-  document.getElementById('modalPdfBtn').style.display = 'inline-block';
-  document.getElementById('invoiceModal').style.display = 'flex';
+  showModal(`청구서 (${farmerName})`, filterHtml, html, false, true, true);
 }
 
 async function showWorkerStats(forceYear, forceMonth) {
@@ -806,13 +822,7 @@ async function showWorkerStats(forceYear, forceMonth) {
   });
 
   html += `</tbody></table></div>`;
-  document.getElementById('modalTitle').textContent = '급여 명세 관리';
-  document.getElementById('invoiceFilterArea').innerHTML = filterHtml;
-  document.getElementById('invoiceContent').innerHTML = html;
-  document.getElementById('modalShareBtn').style.display = 'none';
-  document.getElementById('modalPrintBtn').style.display = 'none';
-  document.getElementById('modalPdfBtn').style.display = 'none';
-  document.getElementById('invoiceModal').style.display = 'flex';
+  showModal('급여 명세 관리', filterHtml, html, false, false, false);
 }
 
 async function openWorkerPayDetail(workerId, name, callName, year, month) {
@@ -862,12 +872,26 @@ async function openWorkerPayDetail(workerId, name, callName, year, month) {
       <tr style="font-size:16px;color:#168b43;font-weight:bold;"><td style="padding-top:10px">실수령액 (ເງິນສຸດທິ):</td><td style="text-align:right;padding-top:10px">₩${totalPay.toLocaleString()}</td></tr>
     </table>
   </div>`;
+
+  showModal('상세 급여 명세서', '', html, false, true, true);
+}
+
+function showModal(title, filterHtml, contentHtml, showShare, showPrint, showPdf) {
+  document.getElementById('modalTitle').textContent = title;
+  document.getElementById('invoiceFilterArea').innerHTML = filterHtml || '';
+  document.getElementById('invoiceContent').innerHTML = contentHtml || '';
   
-  document.getElementById('modalTitle').textContent = '상세 급여 명세서';
-  document.getElementById('invoiceContent').innerHTML = html;
-  document.getElementById('modalShareBtn').style.display = 'none';
-  document.getElementById('modalPrintBtn').style.display = 'inline-block';
-  document.getElementById('modalPdfBtn').style.display = 'inline-block';
+  document.getElementById('modalShareBtn').style.display = showShare ? 'inline-block' : 'none';
+  document.getElementById('modalPrintBtn').style.display = showPrint ? 'inline-block' : 'none';
+  document.getElementById('modalPdfBtn').style.display = showPdf ? 'inline-block' : 'none';
+  
+  document.getElementById('modalOverlay').style.display = 'block';
+  document.getElementById('invoiceModal').style.display = 'flex';
+}
+
+function closeInvoice(){ 
+  document.getElementById('modalOverlay').style.display = 'none';
+  document.getElementById('invoiceModal').style.display = 'none'; 
 }
 
 function downloadPdfNotice() {
@@ -978,7 +1002,6 @@ async function cancelAppByAdmin(i) {
   }
 }
 
-function closeInvoice(){ document.getElementById('invoiceModal').style.display = 'none'; }
 function clearData(){ if(confirm('정말 전체 데이터를 초기화하시겠습니까?')){ localStorage.clear(); location.reload(); } }
 </script>
 </body>
