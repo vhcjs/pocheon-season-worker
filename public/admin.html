@@ -188,7 +188,6 @@ window.addEventListener('DOMContentLoaded', () => {
   makeModalDraggable(document.getElementById("userPageContainer"), document.getElementById("userPageHeader"));
 });
 
-/* 마우스 드래그 기능 구현 */
 function makeModalDraggable(elmnt, headerElmnt) {
   let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
   if (headerElmnt) {
@@ -223,7 +222,6 @@ function makeModalDraggable(elmnt, headerElmnt) {
   }
 }
 
-/* 신청자 화면 팝업 관련 함수 */
 function openUserViewModal() {
   const container = document.getElementById('userPageContainer');
   container.style.top = '5vh';
@@ -356,8 +354,101 @@ async function toggleWorker(id){ let availCount = await getAvailableCount(select
 async function changeQty(n){ let availCount = await getAvailableCount(selectedDate); let minQty = selectedWorkers.length || 1; let newQty = qty + n; if (newQty > availCount) { alert(\`해당 날짜는 잔여 수량(\${availCount}명)을 초과하여 신청할 수 없습니다.\`); return; } qty = Math.max(minQty, Math.min(availCount, newQty)); document.getElementById('qty').value = qty; updatePrice(); }
 function updatePrice(){ document.getElementById('price').textContent = '₩' + (qty * BASE_DAILY_PRICE).toLocaleString(); }
 function resetForm() { document.getElementById('farmerName').value = ''; document.getElementById('phone').value = ''; document.getElementById('address').value = ''; document.getElementById('work').value = ''; document.getElementById('etc').value = ''; selectedWorkers = []; qty = 1; document.getElementById('qty').value = 1; updatePrice(); renderCalendar(); renderWorkers(); }
-async function submitApplication(){ let farmerName = document.getElementById('farmerName').value.trim(), phone = document.getElementById('phone').value.trim(), address = document.getElementById('address').value.trim(), work = document.getElementById('work').value.trim(); if(!farmerName || !phone || !address || !work){ showAlert('⚠️', '입력 확인', '모든 항목을 입력해주세요.'); return; } const no = 'REC-2026-' + String(Math.floor(100 + Math.random() * 900)); const selectedWorkerNames = selectedWorkers.map(id => { let w = workers.find(x => x.id === id); return w ? (w.callName ? \`[\${w.callName}] \${w.name}\` : w.name) : ''; }); const payload = { no, date: selectedDate, farmerName, phone, address, work, gender: document.querySelector('input[name="gender"]:checked')?.value || '무관', selectedWorkerIds: selectedWorkers, workers: selectedWorkerNames, qty, etc: document.getElementById('etc').value, status: '접수대기', baseHours: 10, overtimeHours: 0, totalPrice: qty * BASE_DAILY_PRICE }; let currentApps = JSON.parse(localStorage.getItem(KEY) || '{"apps":[]}'); currentApps.apps.push(payload); localStorage.setItem(KEY, JSON.stringify(currentApps)); await apiFetch('/apps', 'POST', payload); showAlert('🎉', '신청 완료!', \`접수번호: <b style="color:#168b43">\${no}</b><br>예정일: \${selectedDate}\`, resetForm); parent.renderAdmin(); }
-async function lookup(){ let p = prompt('접수번호, 전화번호, 또는 농장주명을 입력해 주세요.'); if(!p || !p.trim()) return; const rawQuery = p.trim(); const cleanQuery = rawQuery.toUpperCase().replace(/[\\s-]/g, ''); const data = await apiFetch('/apps', 'GET'); const apps = data.apps || []; let userApps = apps.filter(x => { const cleanNo = (x.no || '').toUpperCase().replace(/[\\s-]/g, ''); const cleanPhone = (x.phone || '').replace(/[\\s-]/g, ''); const farmerName = (x.farmerName || '').trim(); return cleanNo.includes(cleanQuery) || cleanPhone.includes(cleanQuery) || farmerName.includes(rawQuery); }); if(!userApps.length){ showAlert('🔍', '내역 없음', '입력하신 정보와 일치하는 신청 내역이 없습니다.'); return; } let msg = \`<h3 style="margin-top:0;color:#168b43;text-align:center;">📋 신청 내역 조회 결과</h3>\`; msg += \`<p style="font-size:13px;color:#666;text-align:center;margin-bottom:15px;">검색어: <b>\${rawQuery}</b> (총 \${userApps.length}건)</p>\`; userApps.forEach((x, idx) => { let statusBg = x.status === '배정완료' ? '#dff5e6' : (x.status === '취소' ? '#f8d7da' : '#fff3cd'); let statusColor = x.status === '배정완료' ? '#08752f' : (x.status === '취소' ? '#721c24' : '#8a6500'); msg += \`<div style="border:1px solid #ddd;padding:12px;border-radius:8px;margin-bottom:10px;background:#fcfdfd;"><div style="display:flex;justify-content:space-between;align-items:center;"><b>\${idx + 1}. 접수번호: \${x.no}</b><span style="background:\${statusBg};color:\${statusColor};padding:3px 8px;border-radius:12px;font-size:12px;font-weight:bold;">\${x.status || '접수대기'}</span></div><div style="font-size:13px;color:#444;margin-top:6px;line-height:1.5;">• 농가명: <b>\${x.farmerName}</b> (\${x.phone})<br>• 신청일: \${x.date} | 신청인원: \${x.qty}명<br>• 작업내용: \${x.work}</div>\`; if (x.status !== '취소') { msg += \`<div style="text-align:right;margin-top:8px;"><button class="mini" style="background:#dc3545;color:#fff;border:0;" onclick="cancelAppByUser('\${x.no}')">취소하기</button></div>\`; } msg += \`</div>\`; }); document.getElementById('invoiceContent').innerHTML = msg; document.getElementById('invoiceModal').style.display = 'flex'; }
+
+function getFormattedNow() {
+  const now = new Date();
+  const y = now.getFullYear();
+  const m = String(now.getMonth() + 1).padStart(2, '0');
+  const d = String(now.getDate()).padStart(2, '0');
+  const hh = String(now.getHours()).padStart(2, '0');
+  const mm = String(now.getMinutes()).padStart(2, '0');
+  return \`\${y}-\${m}-\${d} \${hh}:\${mm}\`;
+}
+
+async function submitApplication(){ 
+  let farmerName = document.getElementById('farmerName').value.trim(), 
+      phone = document.getElementById('phone').value.trim(), 
+      address = document.getElementById('address').value.trim(), 
+      work = document.getElementById('work').value.trim(); 
+  if(!farmerName || !phone || !address || !work){ 
+    showAlert('⚠️', '입력 확인', '모든 항목을 입력해주세요.'); 
+    return; 
+  } 
+  const nowStr = getFormattedNow();
+  const no = 'REC-' + new Date().getFullYear() + '-' + String(Math.floor(1000 + Math.random() * 9000)); 
+  const selectedWorkerNames = selectedWorkers.map(id => { 
+    let w = workers.find(x => x.id === id); 
+    return w ? (w.callName ? \`[\${w.callName}] \${w.name}\` : w.name) : ''; 
+  }); 
+  const payload = { 
+    no, 
+    date: selectedDate, 
+    createdAt: nowStr,
+    farmerName, 
+    phone, 
+    address, 
+    work, 
+    gender: document.querySelector('input[name="gender"]:checked')?.value || '무관', 
+    selectedWorkerIds: selectedWorkers, 
+    workers: selectedWorkerNames, 
+    qty, 
+    etc: document.getElementById('etc').value, 
+    status: '접수대기', 
+    baseHours: 10, 
+    overtimeHours: 0, 
+    totalPrice: qty * BASE_DAILY_PRICE 
+  }; 
+  let currentApps = JSON.parse(localStorage.getItem(KEY) || '{"apps":[]}'); 
+  currentApps.apps.push(payload); 
+  localStorage.setItem(KEY, JSON.stringify(currentApps)); 
+  await apiFetch('/apps', 'POST', payload); 
+  showAlert('🎉', '신청 완료!', \`<b>접수번호:</b> <span style="color:#168b43">\${no}</span><br><b>접수일시:</b> \${nowStr}<br><b>작업예정일:</b> \${selectedDate}\`, resetForm); 
+  parent.renderAdmin(); 
+}
+
+async function lookup(){ 
+  let p = prompt('접수번호, 전화번호, 또는 농장주명을 입력해 주세요.'); 
+  if(!p || !p.trim()) return; 
+  const rawQuery = p.trim(); 
+  const cleanQuery = rawQuery.toUpperCase().replace(/[\\s-]/g, ''); 
+  const data = await apiFetch('/apps', 'GET'); 
+  const apps = data.apps || []; 
+  let userApps = apps.filter(x => { 
+    const cleanNo = (x.no || '').toUpperCase().replace(/[\\s-]/g, ''); 
+    const cleanPhone = (x.phone || '').replace(/[\\s-]/g, ''); 
+    const farmerName = (x.farmerName || '').trim(); 
+    return cleanNo.includes(cleanQuery) || cleanPhone.includes(cleanQuery) || farmerName.includes(rawQuery); 
+  }); 
+  if(!userApps.length){ 
+    showAlert('🔍', '내역 없음', '입력하신 정보와 일치하는 신청 내역이 없습니다.'); 
+    return; 
+  } 
+  let msg = \`<h3 style="margin-top:0;color:#168b43;text-align:center;">📋 신청 내역 조회 결과</h3>\`; 
+  msg += \`<p style="font-size:13px;color:#666;text-align:center;margin-bottom:15px;">검색어: <b>\${rawQuery}</b> (총 \${userApps.length}건)</p>\`; 
+  userApps.forEach((x, idx) => { 
+    let statusBg = x.status === '배정완료' ? '#dff5e6' : (x.status === '취소' ? '#f8d7da' : '#fff3cd'); 
+    let statusColor = x.status === '배정완료' ? '#08752f' : (x.status === '취소' ? '#721c24' : '#8a6500'); 
+    let regDateStr = x.createdAt || '일시 정보 없음';
+    msg += \`<div style="border:1px solid #ddd;padding:12px;border-radius:8px;margin-bottom:10px;background:#fcfdfd;">
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <b>\${idx + 1}. 접수번호: \${x.no}</b>
+        <span style="background:\${statusBg};color:\${statusColor};padding:3px 8px;border-radius:12px;font-size:12px;font-weight:bold;">\${x.status || '접수대기'}</span>
+      </div>
+      <div style="font-size:13px;color:#444;margin-top:6px;line-height:1.5;">
+        • <b>접수일시:</b> <span style="color:#0d6efd;">\${regDateStr}</span><br>
+        • <b>농가명:</b> \${x.farmerName} (\${x.phone})<br>
+        • <b>작업예정일:</b> \${x.date} | <b>신청인원:</b> \${x.qty}명<br>
+        • <b>작업내용:</b> \${x.work}
+      </div>\`; 
+    if (x.status !== '취소') { 
+      msg += \`<div style="text-align:right;margin-top:8px;"><button class="mini" style="background:#dc3545;color:#fff;border:0;" onclick="cancelAppByUser('\${x.no}')">취소하기</button></div>\`; 
+    } 
+    msg += \`</div>\`; 
+  }); 
+  document.getElementById('invoiceContent').innerHTML = msg; 
+  document.getElementById('invoiceModal').style.display = 'flex'; 
+}
+
 async function cancelAppByUser(appNo) { const data = await apiFetch('/apps', 'GET'); const apps = data.apps || []; const idx = apps.findIndex(x => x.no === appNo); if (idx !== -1 && confirm(\`접수번호 [\${appNo}] 신청을 취소하시겠습니까?\`)) { let currentApps = JSON.parse(localStorage.getItem(KEY) || '{"apps":[]}'); let target = currentApps.apps.find(x => x.no === appNo); if(target) { target.status = '취소'; target.selectedWorkerIds = []; target.workers = []; localStorage.setItem(KEY, JSON.stringify(target)); } await apiFetch(\`/apps/\${idx}\`, 'PUT', { no: appNo, status: '취소', selectedWorkerIds: [], workers: [] }); closeInvoice(); showAlert('🗑️', '취소 완료', '정상적으로 취소되었습니다.', resetForm); parent.renderAdmin(); } }
 function closeInvoice(){ document.getElementById('invoiceModal').style.display = 'none'; }
 document.getElementById('clock').textContent = new Date().toLocaleDateString('ko-KR');
@@ -484,7 +575,7 @@ async function renderAdmin() {
   document.getElementById('statAppCount').textContent = `${apps.length} 건`;
   document.getElementById('statTotalPrice').textContent = `₩${totalSum.toLocaleString()}`;
 
-  let html = `<table class="table"><thead><tr><th>접수번호</th><th>작업일자</th><th>농가명</th><th>작업내용</th><th>신청/배정</th><th>연장근무</th><th>총금액</th><th>상태</th><th>관리</th></tr></thead><tbody>`;
+  let html = `<table class="table"><thead><tr><th>접수정보</th><th>작업일자</th><th>농가명</th><th>작업내용</th><th>신청/배정</th><th>연장근무</th><th>총금액</th><th>상태</th><th>관리</th></tr></thead><tbody>`;
   
   if(!apps.length) {
     html += `<tr><td colspan="9">신청 내역이 없습니다.</td></tr>`;
@@ -504,8 +595,10 @@ async function renderAdmin() {
         historyBtnHtml = `<br><button class="mini" style="background:#6f42c1;color:#fff;margin-top:4px;" onclick="showFarmerHistoryModal('${a.phone}', '${a.farmerName}')">💡 이전 이력/선호 정보</button>`;
       }
 
+      let createdAtStr = a.createdAt ? `<br><small style="color:#666;">(${a.createdAt})</small>` : '';
+
       html += `<tr>
-        <td>${a.no}</td>
+        <td><b>${a.no}</b>${createdAtStr}</td>
         <td>${a.date}</td>
         <td>
           <b>${a.farmerName}</b> ${farmerTagHtml}<br>
@@ -555,12 +648,12 @@ async function showFarmerHistoryModal(phone, farmerName) {
   <h4 style="margin:15px 0 10px 0;">📜 과거 작업 신청 이력 (${history.count}건)</h4>
   <div class="scrollable-table-wrap">
     <table class="invoice-table">
-      <thead><tr><th>작업일자</th><th>작업내용</th><th>신청인원</th><th>상태</th></tr></thead>
+      <thead><tr><th>접수번호</th><th>접수일시</th><th>작업일자</th><th>작업내용</th><th>신청인원</th><th>상태</th></tr></thead>
       <tbody>
   `;
 
   history.pastApps.forEach(pa => {
-    html += `<tr><td>${pa.date}</td><td>${pa.work}</td><td>${pa.qty}명</td><td>${pa.status}</td></tr>`;
+    html += `<tr><td>${pa.no}</td><td>${pa.createdAt || '-'}</td><td>${pa.date}</td><td>${pa.work}</td><td>${pa.qty}명</td><td>${pa.status}</td></tr>`;
   });
 
   html += `</tbody></table></div>`;
@@ -601,7 +694,7 @@ async function openAssignModal(appIndex) {
     stats[w.id] = { days, hours };
   });
 
-  let html = `<p style="font-size:14px;"><b>${item.farmerName} 농가 | 신청일: ${item.date} (신청요청 인원: ${item.qty}명)</b></p>
+  let html = `<p style="font-size:14px;"><b>${item.farmerName} 농가 | 접수번호: ${item.no} (${item.createdAt || ''})</b><br>작업예정일: ${item.date} (신청인원: ${item.qty}명)</p>
   <p style="font-size:13px;color:#d9534f;margin-top:-5px;">⚠️ 당일 타농가 배정 근로자는 선택 불가하며, 신청하신 인원 <b>${allowedQty}명</b>까지만 선택할 수 있습니다.</p>
   <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;max-height:50vh;overflow-y:auto;padding:2px;" id="workerCheckboxContainer">`;
 
@@ -695,6 +788,7 @@ async function openShareModal(appIndex) {
   currentShareText = `[포천시 계절근로자 예약 안내]\n` +
     `────────────────────\n` +
     `- 접수번호: ${item.no}\n` +
+    `- 접수일시: ${item.createdAt || '미표기'}\n` +
     `- 농장주: ${item.farmerName} (${item.phone})\n` +
     `- 농지주소: ${item.address}\n` +
     `- 작업일자: ${item.date}\n` +
@@ -798,12 +892,12 @@ async function openInvoice(farmerName, forceYear, forceMonth) {
   } else {
     let totalSum = 0;
     html += `<div class="scrollable-table-wrap"><table class="invoice-table">
-      <thead><tr><th>작업일자</th><th>배정인원</th><th>연장시간</th><th>일 청구금액</th></tr></thead><tbody>`;
+      <thead><tr><th>접수번호</th><th>접수일시</th><th>작업일자</th><th>배정인원</th><th>연장시간</th><th>일 청구금액</th></tr></thead><tbody>`;
     filtered.forEach(a => {
       let count = a.selectedWorkerIds.length;
       let p = a.totalPrice || (count * BASE_DAILY_PRICE);
       totalSum += p;
-      html += `<tr><td>${a.date}</td><td>${count}명</td><td>${a.overtimeHours||0}시간</td><td>₩${p.toLocaleString()}</td></tr>`;
+      html += `<tr><td>${a.no}</td><td>${a.createdAt||'-'}</td><td>${a.date}</td><td>${count}명</td><td>${a.overtimeHours||0}시간</td><td>₩${p.toLocaleString()}</td></tr>`;
     });
     html += `</tbody></table></div>
     <div style="text-align:right;font-size:18px;font-weight:bold;margin-top:20px;color:#168b43">총 청구 금액: ₩${totalSum.toLocaleString()}</div>`;
@@ -870,7 +964,7 @@ async function openWorkerPayDetail(workerId, name, callName, year, month) {
   
   let days = 0, overHours = 0;
   let workHistoryHtml = `<div class="scrollable-table-wrap"><table class="invoice-table" style="margin-top:5px;">
-    <thead><tr><th>작업일자</th><th>농가명</th><th>기본(시간)</th><th>연장(시간)</th></tr></thead><tbody>`;
+    <thead><tr><th>접수번호</th><th>작업일자</th><th>농가명</th><th>기본(시간)</th><th>연장(시간)</th></tr></thead><tbody>`;
 
   apps.filter(a => a.status === '배정완료' && a.selectedWorkerIds && a.selectedWorkerIds.includes(workerId)).forEach(a => {
     if(!a.date) return;
@@ -881,7 +975,7 @@ async function openWorkerPayDetail(workerId, name, callName, year, month) {
     days += 1; 
     let oh = a.overtimeHours || 0;
     overHours += oh;
-    workHistoryHtml += `<tr><td>${a.date}</td><td><b>${a.farmerName}</b></td><td>${BASE_DAILY_HOURS}</td><td>${oh}</td></tr>`;
+    workHistoryHtml += `<tr><td>${a.no}</td><td>${a.date}</td><td><b>${a.farmerName}</b></td><td>${BASE_DAILY_HOURS}</td><td>${oh}</td></tr>`;
   });
 
   workHistoryHtml += `</tbody></table></div>`;
@@ -931,7 +1025,7 @@ async function exportCombinedExcel() {
   const excelData = apps.map(a => {
     let assignedCount = (a.selectedWorkerIds && a.selectedWorkerIds.length > 0) ? a.selectedWorkerIds.length : 0;
     return {
-      '접수번호': a.no, '신청일자': a.date, '농장주': a.farmerName, '신청인원': a.qty, '배정인원': assignedCount,
+      '접수번호': a.no, '접수일시': a.createdAt || '', '신청일자': a.date, '농장주': a.farmerName, '신청인원': a.qty, '배정인원': assignedCount,
       '연장근무(시간)': a.overtimeHours || 0, '총정산금액': (a.status === '배정완료' && assignedCount > 0) ? (a.totalPrice || (assignedCount * BASE_DAILY_PRICE)) : 0, '상태': a.status
     };
   });
@@ -987,9 +1081,9 @@ function createSampleData() {
 
   const sampleApps = {
     apps: [
-      { no: 'REC-2026-001', date: formatDate(nextMonthObj), farmerName: '김포천', phone: '010-1111-2222', address: '경기도 포천시 영중면 성동리', work: '사과 수확 및 과수원 정리', qty: 2, status: '배정완료', selectedWorkerIds: ['W001', 'W002'], overtimeHours: 2, totalPrice: (2 * BASE_DAILY_PRICE) + (2 * 2 * OVERTIME_HOURLY_WAGE) },
-      { no: 'REC-2026-002', date: formatDate(nextMonthObj2), farmerName: '이오성', phone: '010-3333-4444', address: '경기도 포천시 이동면 장암리', work: '고추밭 비닐 고르기', qty: 3, status: '접수대기', selectedWorkerIds: [], overtimeHours: 0, totalPrice: 0 },
-      { no: 'REC-2026-003', date: formatDate(nextMonthObj3), farmerName: '김포천', phone: '010-1111-2222', address: '경기도 포천시 영중면 성동리', work: '인삼밭 차광막 설치', qty: 2, status: '배정완료', selectedWorkerIds: ['W001', 'W004'], overtimeHours: 0, totalPrice: 2 * BASE_DAILY_PRICE }
+      { no: 'REC-2026-1001', createdAt: '2026-03-01 10:15', date: formatDate(nextMonthObj), farmerName: '김포천', phone: '010-1111-2222', address: '경기도 포천시 영중면 성동리', work: '사과 수확 및 과수원 정리', qty: 2, status: '배정완료', selectedWorkerIds: ['W001', 'W002'], overtimeHours: 2, totalPrice: (2 * BASE_DAILY_PRICE) + (2 * 2 * OVERTIME_HOURLY_WAGE) },
+      { no: 'REC-2026-1002', createdAt: '2026-03-02 14:20', date: formatDate(nextMonthObj2), farmerName: '이오성', phone: '010-3333-4444', address: '경기도 포천시 이동면 장암리', work: '고추밭 비닐 고르기', qty: 3, status: '접수대기', selectedWorkerIds: [], overtimeHours: 0, totalPrice: 0 },
+      { no: 'REC-2026-1003', createdAt: '2026-03-05 09:40', date: formatDate(nextMonthObj3), farmerName: '김포천', phone: '010-1111-2222', address: '경기도 포천시 영중면 성동리', work: '인삼밭 차광막 설치', qty: 2, status: '배정완료', selectedWorkerIds: ['W001', 'W004'], overtimeHours: 0, totalPrice: 2 * BASE_DAILY_PRICE }
     ]
   };
   localStorage.setItem(KEY, JSON.stringify(sampleApps));
