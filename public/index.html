@@ -7,7 +7,7 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <style>
-/* 고령자 맞춤 시인성 강화 CSS */
+/* 고령자 맞춤 시인성 극대화 CSS */
 *{box-sizing:border-box} 
 body{margin:0;font-family:"Noto Sans KR", Arial, sans-serif;background:#eef5fb;color:#000;font-size:18px;line-height:1.6}
 button,input,textarea,select{font:inherit} 
@@ -64,22 +64,26 @@ textarea{min-height:120px;resize:vertical}
 .worker small{display:block;color:#444;margin-top:6px;font-size:16px;font-weight:600}
 .worker.locked small{color:#888}
 
-/* 버튼 시인성 및 크기 증대 */
-.actions{display:flex;gap:12px}
-.primary,.secondary{border:0;border-radius:10px;padding:18px 24px;cursor:pointer;font-weight:900;font-size:22px}
-.primary{background:#007a33;color:#fff}.primary:hover{background:#005a2b}
-.secondary{background:#555;color:#fff}.secondary:hover{background:#333}
+/* 하단 주요 신청/조회 버튼 크기 대폭 증대 */
+.actions{display:flex;gap:14px;flex-wrap:wrap}
+.primary,.secondary{border:0;border-radius:12px;cursor:pointer;font-weight:900;text-align:center;box-shadow:0 4px 10px rgba(0,0,0,0.15)}
+.primary{background:#007a33;color:#fff;font-size:26px;padding:24px 32px;flex:2;min-height:75px}.primary:hover{background:#005a2b}
+.secondary{background:#4a5568;color:#fff;font-size:22px;padding:22px 28px;flex:1;min-height:75px}.secondary:hover{background:#2d3748}
 
-.status{padding:18px;border-radius:10px;background:#eef4fc;border:2px solid #b8daff;margin:20px 0;font-size:20px;color:#000}
-.mini{padding:10px 18px;border:2px solid #555;background:#fff;border-radius:8px;cursor:pointer;font-weight:800;font-size:18px;white-space:nowrap;display:inline-flex;align-items:center;justify-content:center;line-height:1.2;margin:2px 0}
+.status{padding:20px;border-radius:12px;background:#eef4fc;border:2px solid #b8daff;margin:24px 0;font-size:22px;color:#000}
+.mini{padding:12px 20px;border:2px solid #555;background:#fff;border-radius:8px;cursor:pointer;font-weight:800;font-size:18px;white-space:nowrap;display:inline-flex;align-items:center;justify-content:center;line-height:1.2;margin:2px 0}
+
+/* 수량 조절 전용 버튼 스타일 */
+.qty-btn{background:#e2e8f0;color:#1a202c;font-size:28px;font-weight:900;width:80px;height:60px;border:2px solid #cbd5e0;border-radius:10px;cursor:pointer}
+.qty-btn:hover{background:#cbd5e0}
 
 /* 모달창 시인성 극대화 */
 .modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);align-items:center;justify-content:center;z-index:9999}
 .invoice-box{background:#fff;padding:36px;border-radius:16px;width:92%;max-width:850px;box-shadow:0 6px 24px rgba(0,0,0,0.3);max-height:90vh;overflow-y:auto}
 .alert-box{background:#fff;padding:40px 32px;border-radius:20px;width:92%;max-width:480px;text-align:center;box-shadow:0 12px 36px rgba(0,0,0,0.3)}
 .alert-icon{font-size:60px;margin-bottom:16px;display:block}
-.alert-title{font-size:26px;font-weight:900;color:#000;margin-bottom:12px}
-.alert-body{font-size:18px;color:#222;line-height:1.6;margin-bottom:28px;font-weight:500}
+.alert-title{font-size:28px;font-weight:900;color:#000;margin-bottom:12px}
+.alert-body{font-size:20px;color:#222;line-height:1.6;margin-bottom:28px;font-weight:500}
 .callname-tag{display:inline-block;background:#c8e6c9;color:#004d20;font-weight:900;padding:4px 8px;border-radius:6px;border:1px solid #81c784;font-size:16px;margin-right:6px}
 
 /* 모바일 모드 가독성 강화 */
@@ -92,7 +96,9 @@ textarea{min-height:120px;resize:vertical}
   .card{padding:16px}
   label{font-size:18px}
   input,textarea,select{font-size:17px;padding:12px}
-  .primary,.secondary{font-size:18px;padding:14px 16px}
+  .actions{flex-direction:column}
+  .primary{font-size:22px;padding:18px;width:100%;min-height:65px}
+  .secondary{font-size:18px;padding:16px;width:100%;min-height:60px}
 }
 </style>
 </head>
@@ -133,10 +139,13 @@ textarea{min-height:120px;resize:vertical}
 <div class="field"><label>선호 근로자 <span class="hint">(이미 배정된 근로자는 선택할 수 없습니다.)</span></label>
 <div id="workers" class="worker-grid"></div></div>
 
-<div class="field"><label>신청 인원</label><div class="actions"><button class="secondary" style="width:70px;" onclick="changeQty(-1)">−</button><input id="qty" value="1" readonly style="text-align:center;font-size:24px;font-weight:bold;"><button class="secondary" style="width:70px;" onclick="changeQty(1)">+</button></div></div>
+<div class="field"><label>신청 인원</label><div style="display:flex;gap:10px;align-items:center;"><button class="qty-btn" onclick="changeQty(-1)">−</button><input id="qty" value="1" readonly style="text-align:center;font-size:26px;font-weight:900;height:60px;"><button class="qty-btn" onclick="changeQty(1)">+</button></div></div>
 <div class="field"><label>기타 요청사항</label><textarea id="etc" placeholder="기타 요청사항을 작성해주세요"></textarea></div>
-<div class="status"><b>예상 신청금액 (1일 기본일당 기준)</b> <span style="float:right;font-size:26px;font-weight:900;color:#005a2b" id="price">₩120,000</span></div>
-<div class="actions"><button class="primary" onclick="submitApplication()">신청하기</button><button class="secondary" onclick="lookup()">신청조회 및 취소</button></div>
+<div class="status"><b>예상 신청금액 (1일 기본일당 기준)</b> <span style="float:right;font-size:28px;font-weight:900;color:#005a2b" id="price">₩120,000</span></div>
+<div class="actions">
+  <button class="primary" onclick="submitApplication()">신청하기</button>
+  <button class="secondary" onclick="lookup()">신청조회 및 취소</button>
+</div>
 </div>
 </div></main>
 </div>
@@ -144,7 +153,7 @@ textarea{min-height:120px;resize:vertical}
 <div id="invoiceModal" class="modal">
   <div class="invoice-box">
     <div id="invoiceContent"></div>
-    <div class="actions" style="margin-top:24px"><button class="secondary" style="width:100%" onclick="closeInvoice()">닫기</button></div>
+    <div class="actions" style="margin-top:24px"><button class="secondary" style="width:100%;min-height:60px;" onclick="closeInvoice()">닫기</button></div>
   </div>
 </div>
 
@@ -153,7 +162,7 @@ textarea{min-height:120px;resize:vertical}
     <span class="alert-icon" id="alertIcon">✅</span>
     <div class="alert-title" id="alertTitle">처리 완료</div>
     <div class="alert-body" id="alertBody">요청하신 작업이 성공적으로 처리되었습니다.</div>
-    <button class="primary" style="width:100%" onclick="closeAlertAndReset()">확인</button>
+    <button class="primary" style="width:100%;min-height:65px;font-size:22px;" onclick="closeAlertAndReset()">확인</button>
   </div>
 </div>
 
