@@ -25,8 +25,7 @@ main{padding:30px 20px}
 .card{border:2px solid #bbb;border-radius:16px;padding:24px;margin-bottom:24px;background:#fff;box-shadow:0 4px 12px rgba(0,0,0,0.08)}
 .notice-card{background:#f0f9f3;border:2px solid #168b43;border-left:10px solid #005a2b}
 .notice-title{font-size:22px;font-weight:900;color:#005a2b;margin-bottom:12px;display:flex;align-items:center;gap:8px}
-/* 공지사항 스크롤 영역 (모바일 대응 높이 최적화) */
-.notice-content{font-size:18px;color:#111;line-height:1.7;white-space:pre-line;font-weight:500;max-height:150px;overflow-y:auto;padding-right:6px;}
+.notice-content{font-size:18px;color:#111;line-height:1.7;white-space:pre-line;font-weight:500}
 
 /* 폼 요소 및 레이블 확대 */
 label{display:block;font-weight:800;margin:0 0 10px;font-size:20px;color:#000}
@@ -142,8 +141,6 @@ textarea{min-height:120px;resize:vertical}
   
   .radio-group { gap: 14px; }
   .radio-label { font-size: 18px; }
-  
-  .notice-content { max-height: 120px; font-size: 16px; } /* 모바일에서 공지사항 높이를 더 컴팩트하게 조절 */
   
   .status {
     flex-direction: column;
@@ -422,7 +419,7 @@ async function renderWorkers(){
 
   document.getElementById('workers').innerHTML = workers.map(w => {
     let locked = lockedSet.has(w.id), sel = selectedWorkers.includes(w.id);
-    return `<div class="worker ${locked ? 'locked' : ''} ${sel ? 'selected' : ''}" onclick="${locked ? '' : 'toggleWorker(\'' + w.id + \'\')'}">
+    return `<div class="worker ${locked ? 'locked' : ''} ${sel ? 'selected' : ''}" onclick="${locked ? '' : 'toggleWorker(\'' + w.id + '\')'}">
       <b>${sel ? '✓ ' : ''}${w.callName ? '<span class="callname-tag">['+w.callName+']</span>' : ''}${w.name}</b>
       <small>성별: ${w.gender}${locked ? ' <b style="color:#d32f2f">(배정 완료)</b>' : ''}</small>
     </div>`;
