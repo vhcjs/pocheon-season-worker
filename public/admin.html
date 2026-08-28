@@ -46,6 +46,24 @@ label{display:block;font-weight:700;margin:0 0 8px}.field{margin-bottom:17px} in
 .badge.new-user { background:#e3f2fd; color:#0d6efd; font-weight:bold; }
 .badge.old-user { background:#fff3cd; color:#8a6500; font-weight:bold; }
 
+/* 드래그 가능한 모달창 스타일 지정 */
+#userPageModal { background: rgba(0,0,0,0.2); pointer-events: none; }
+#userPageContainer {
+  pointer-events: auto;
+  position: absolute;
+  top: 5vh;
+  left: calc(50% - 400px);
+  background: #fff;
+  border-radius: 12px;
+  width: 95%;
+  max-width: 800px;
+  height: 85vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+}
+
 @media print {
   body * { visibility: hidden; }
   #invoiceModal, #invoiceModal * { visibility: visible; }
@@ -76,7 +94,6 @@ label{display:block;font-weight:700;margin:0 0 8px}.field{margin-bottom:17px} in
 <div class="app" id="adminApp" style="display:none">
 <header>
   <div class="logo">포천시 농업재단 [관리자 전용 정산시스템]</div>
-  <!-- 추가된 탭 및 로그아웃 버튼 영역 -->
   <div style="display:flex;gap:10px;">
     <button class="mini" onclick="openUserViewModal()" style="background:#fff;color:#168b43;font-weight:bold;">📱 신청자 페이지 미리보기</button>
     <button class="mini" onclick="logout()" style="background:#fff;color:#dc3545;font-weight:bold;">로그아웃</button>
@@ -127,11 +144,11 @@ label{display:block;font-weight:700;margin:0 0 8px}.field{margin-bottom:17px} in
   </div>
 </div>
 
-<!-- 추가된 신청자 페이지 전용 모달 -->
+<!-- 드래그 가능한 신청자 페이지 팝업 -->
 <div id="userPageModal" class="modal">
-  <div style="background:#fff;border-radius:12px;width:95%;max-width:800px;height:90vh;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,0.3);">
-    <div style="padding:15px 20px;background:#168b43;color:#fff;display:flex;justify-content:space-between;align-items:center;">
-      <h3 style="margin:0;font-size:16px;">📱 신청자 화면 미리보기</h3>
+  <div id="userPageContainer">
+    <div id="userPageHeader" style="padding:15px 20px;background:#168b43;color:#fff;display:flex;justify-content:space-between;align-items:center;cursor:move;user-select:none;">
+      <h3 style="margin:0;font-size:16px;">📱 신청자 화면 미리보기 (여기 상단을 드래그하여 이동)</h3>
       <button class="mini" onclick="closeUserViewModal()" style="background:#fff;color:#333;">닫기 ✕</button>
     </div>
     <iframe id="userPageIframe" style="width:100%;height:100%;border:none;"></iframe>
@@ -168,15 +185,54 @@ window.addEventListener('DOMContentLoaded', () => {
     loadNotice();
     renderAdmin();
   }
+  makeModalDraggable(document.getElementById("userPageContainer"), document.getElementById("userPageHeader"));
 });
 
-/* 신청자 화면 팝업 관련 함수 추가 */
+/* 마우스 드래그 기능 구현 */
+function makeModalDraggable(elmnt, headerElmnt) {
+  let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
+  if (headerElmnt) {
+    headerElmnt.onmousedown = dragMouseDown;
+  } else {
+    elmnt.onmousedown = dragMouseDown;
+  }
+
+  function dragMouseDown(e) {
+    e = e || window.event;
+    e.preventDefault();
+    pos3 = e.clientX;
+    pos4 = e.clientY;
+    document.onmouseup = closeDragElement;
+    document.onmousemove = elementDrag;
+  }
+
+  function elementDrag(e) {
+    e = e || window.event;
+    e.preventDefault();
+    pos1 = pos3 - e.clientX;
+    pos2 = pos4 - e.clientY;
+    pos3 = e.clientX;
+    pos4 = e.clientY;
+    elmnt.style.top = (elmnt.offsetTop - pos2) + "px";
+    elmnt.style.left = (elmnt.offsetLeft - pos1) + "px";
+  }
+
+  function closeDragElement() {
+    document.onmouseup = null;
+    document.onmousemove = null;
+  }
+}
+
+/* 신청자 화면 팝업 관련 함수 */
 function openUserViewModal() {
+  const container = document.getElementById('userPageContainer');
+  container.style.top = '5vh';
+  container.style.left = 'calc(50% - 400px)';
+  
   const iframe = document.getElementById('userPageIframe');
   iframe.src = 'about:blank';
   document.getElementById('userPageModal').style.display = 'flex';
   
-  // source 2 코드 실행
   setTimeout(() => {
     const doc = iframe.contentWindow.document;
     doc.open();
