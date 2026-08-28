@@ -32,7 +32,7 @@ label{display:block;font-weight:700;margin:0 0 8px}.field{margin-bottom:17px} in
 
 .mini{padding:6px 12px;border:1px solid #ccc;background:#fff;border-radius:6px;cursor:pointer;font-weight:700;white-space:nowrap;display:inline-flex;align-items:center;justify-content:center;line-height:1.2;margin:2px 0;font-size:13px;}
 .badge{display:inline-block;padding:5px 10px;border-radius:20px;background:#eee;font-size:13px;white-space:nowrap;}.badge.done{background:#dff5e6;color:#08752f}.badge.wait{background:#fff3cd;color:#8a6500}.badge.cancel{background:#f8d7da;color:#721c24}
-.modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);align-items:center;justify-content:center;z-index:9999}
+.modal{display:none;position fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);align-items:center;justify-content:center;z-index:9999}
 .invoice-box{background:#fff;padding:30px;border-radius:12px;width:90%;max-width:850px;box-shadow:0 4px 20px rgba(0,0,0,0.2);max-height:90vh;overflow-y:auto;font-size:14px;}
 
 .scrollable-table-wrap { width: 100%; overflow-x: auto; margin: 15px 0; border: 1px solid #ddd; border-radius: 8px; }
@@ -42,6 +42,10 @@ label{display:block;font-weight:700;margin:0 0 8px}.field{margin-bottom:17px} in
 .login-box{background:#fff;padding:30px;border-radius:12px;width:90%;max-width:380px;text-align:center;box-shadow:0 10px 25px rgba(0,0,0,0.3)}
 .filter-row {display:flex;gap:10px;align-items:center;margin-bottom:15px;background:#f8f9fa;padding:12px;border-radius:8px;border:1px solid #ddd;font-size:14px;flex-wrap:wrap;}
 .filter-row select {width:auto;padding:8px;border-radius:6px;border:1px solid #ccc;font-size:14px;}
+
+/* 신규/기존 태그 스타일 추가 */
+.badge.new-user { background:#e3f2fd; color:#0d6efd; font-weight:bold; }
+.badge.old-user { background:#fff3cd; color:#8a6500; font-weight:bold; }
 
 @media print {
   body * { visibility: hidden; }
@@ -223,6 +227,29 @@ async function apiFetch(endpoint, method = 'GET', body = null) {
   }
 }
 
+// 과거 신청 데이터를 바탕으로 농가 이력/선호 분석 함수
+function getFarmerHistory(apps, currentPhone, currentNo) {
+  const pastApps = apps.filter(a => a.phone === currentPhone && a.no !== currentNo);
+  if (pastApps.length === 0) return null; // 과거 이력 없음 (신규)
+
+  const latest = pastApps[pastApps.length - 1];
+  const works = pastApps.map(a => a.work).filter(Boolean);
+  const workerIds = pastApps.flatMap(a => a.selectedWorkerIds || []);
+  
+  const workerCountMap = {};
+  workerIds.forEach(id => { workerCountMap[id] = (workerCountMap[id] || 0) + 1; });
+  const favoriteWorkerIds = Object.keys(workerCountMap).sort((a,b) => workerCountMap[b] - workerCountMap[a]);
+
+  return {
+    count: pastApps.length,
+    latestAddress: latest.address || '주소 정보 없음',
+    latestQty: latest.qty,
+    recentWorks: [...new Set(works)].join(', '),
+    favoriteWorkerIds: favoriteWorkerIds,
+    pastApps: pastApps
+  };
+}
+
 async function renderAdmin() {
   await fetchWorkersFromDB();
   const data = await apiFetch('/apps', 'GET');
@@ -246,10 +273,24 @@ async function renderAdmin() {
       if(a.status === '배정완료') badgeClass = 'done';
       if(a.status === '취소') badgeClass = 'cancel';
 
+      // 기존/신규 구분 및 이력 정보 추출
+      const history = getFarmerHistory(apps, a.phone, a.no);
+      let farmerTagHtml = `<span class="badge new-user">신규</span>`;
+      let historyBtnHtml = '';
+
+      if (history) {
+        farmerTagHtml = `<span class="badge old-user">기존 (${history.count}회차)</span>`;
+        historyBtnHtml = `<br><button class="mini" style="background:#6f42c1;color:#fff;margin-top:4px;" onclick="showFarmerHistoryModal('${a.phone}', '${a.farmerName}')">💡 이전 이력/선호 정보</button>`;
+      }
+
       html += `<tr>
         <td>${a.no}</td>
         <td>${a.date}</td>
-        <td><b>${a.farmerName}</b><br><small>${a.phone}</small></td>
+        <td>
+          <b>${a.farmerName}</b> ${farmerTagHtml}<br>
+          <small>${a.phone}</small>
+          ${historyBtnHtml}
+        </td>
         <td>${a.work}</td>
         <td>${a.qty}명 / <b>${assigned}명</b></td>
         <td>${a.overtimeHours || 0}시간 <button class="mini" onclick="editHours(${i})">수정</button></td>
@@ -266,6 +307,51 @@ async function renderAdmin() {
   }
   html += `</tbody></table>`;
   document.getElementById('adminTable').innerHTML = html;
+}
+
+// 이전 이력 및 선호 정보 팝업 모달
+async function showFarmerHistoryModal(phone, farmerName) {
+  const data = await apiFetch('/apps', 'GET');
+  const apps = data.apps || [];
+  const workers = await fetchWorkersFromDB();
+  
+  const history = getFarmerHistory(apps, phone, '');
+  if (!history) return;
+
+  const favWorkerNames = history.favoriteWorkerIds.map(id => {
+    const w = workers.find(x => x.id === id);
+    return w ? (w.callName ? `[${w.callName}] ${w.name}` : w.name) : id;
+  }).slice(0, 3).join(', ');
+
+  let html = `
+  <div style="background:#f8f9fa;padding:15px;border-radius:10px;margin-bottom:15px;border:1px solid #e9ecef;">
+    <h3 style="margin:0 0 10px 0;color:#168b43;">📊 ${farmerName} 농가 선호 패턴 분석</h3>
+    <p style="margin:6px 0;font-size:14px;">🏡 <b>기본 농지주소:</b> ${history.latestAddress}</p>
+    <p style="margin:6px 0;font-size:14px;">👥 <b>평균 필요인원:</b> 약 ${history.latestQty}명</p>
+    <p style="margin:6px 0;font-size:14px;">🛠️ <b>주요 작업내용:</b> ${history.recentWorks || '기록 없음'}</p>
+    <p style="margin:6px 0;font-size:14px;">⭐ <b>자주 배정받은 선호 근로자:</b> <span style="color:#d9534f;font-weight:bold;">${favWorkerNames || '없음'}</span></p>
+  </div>
+
+  <h4 style="margin:15px 0 10px 0;">📜 과거 작업 신청 이력 (${history.count}건)</h4>
+  <div class="scrollable-table-wrap">
+    <table class="invoice-table">
+      <thead><tr><th>작업일자</th><th>작업내용</th><th>신청인원</th><th>상태</th></tr></thead>
+      <tbody>
+  `;
+
+  history.pastApps.forEach(pa => {
+    html += `<tr><td>${pa.date}</td><td>${pa.work}</td><td>${pa.qty}명</td><td>${pa.status}</td></tr>`;
+  });
+
+  html += `</tbody></table></div>`;
+
+  document.getElementById('modalTitle').textContent = `${farmerName} 농가 이력 정보`;
+  document.getElementById('invoiceFilterArea').innerHTML = '';
+  document.getElementById('invoiceContent').innerHTML = html;
+  document.getElementById('modalShareBtn').style.display = 'none';
+  document.getElementById('modalPrintBtn').style.display = 'none';
+  document.getElementById('modalPdfBtn').style.display = 'none';
+  document.getElementById('invoiceModal').style.display = 'flex';
 }
 
 async function openAssignModal(appIndex) {
@@ -652,7 +738,6 @@ function handleExcelUpload(e) {
     if(newWorkers.length > 0) { 
       saveWorkerList(newWorkers); 
 
-      // Supabase workers DB 동기화
       try {
         await _supabase.from('workers').delete().neq('id', 'CLEAR_ALL');
         await _supabase.from('workers').insert(newWorkers);
@@ -684,7 +769,7 @@ function createSampleData() {
     apps: [
       { no: 'REC-2026-001', date: formatDate(nextMonthObj), farmerName: '김포천', phone: '010-1111-2222', address: '경기도 포천시 영중면 성동리', work: '사과 수확 및 과수원 정리', qty: 2, status: '배정완료', selectedWorkerIds: ['W001', 'W002'], overtimeHours: 2, totalPrice: (2 * BASE_DAILY_PRICE) + (2 * 2 * OVERTIME_HOURLY_WAGE) },
       { no: 'REC-2026-002', date: formatDate(nextMonthObj2), farmerName: '이오성', phone: '010-3333-4444', address: '경기도 포천시 이동면 장암리', work: '고추밭 비닐 고르기', qty: 3, status: '접수대기', selectedWorkerIds: [], overtimeHours: 0, totalPrice: 0 },
-      { no: 'REC-2026-003', date: formatDate(nextMonthObj3), farmerName: '박일손', phone: '010-5555-6666', address: '경기도 포천시 신북면 삼정리', work: '인삼밭 차광막 설치', qty: 2, status: '배정완료', selectedWorkerIds: ['W003', 'W004'], overtimeHours: 0, totalPrice: 2 * BASE_DAILY_PRICE }
+      { no: 'REC-2026-003', date: formatDate(nextMonthObj3), farmerName: '김포천', phone: '010-1111-2222', address: '경기도 포천시 영중면 성동리', work: '인삼밭 차광막 설치', qty: 2, status: '배정완료', selectedWorkerIds: ['W001', 'W004'], overtimeHours: 0, totalPrice: 2 * BASE_DAILY_PRICE }
     ]
   };
   localStorage.setItem(KEY, JSON.stringify(sampleApps));
