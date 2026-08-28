@@ -23,7 +23,29 @@ main{padding:28px 20px}
 .card{border:2px solid #ccc;border-radius:16px;padding:24px;margin-bottom:20px;background:#fff;box-shadow:0 4px 12px rgba(0,0,0,0.08)}
 .notice-card{background:#f0f9f3;border:2px solid #a5d6a7;border-left:8px solid #0b632c}
 .notice-title{font-size:20px;font-weight:900;color:#0b632c;margin-bottom:12px;display:flex;align-items:center;gap:8px}
-.notice-content{font-size:17px;color:#111;line-height:1.7;white-space:pre-line;font-weight:600}
+
+/* 긴 공지사항 대응: 접히는 스크롤 영역 및 스크롤바 디자인 */
+.notice-content{
+  font-size:17px;
+  color:#111;
+  line-height:1.7;
+  white-space:pre-line;
+  font-weight:600;
+  max-height: 160px;
+  overflow-y: auto;
+  padding-right: 8px;
+}
+.notice-content::-webkit-scrollbar {
+  width: 8px;
+}
+.notice-content::-webkit-scrollbar-thumb {
+  background: #0b632c;
+  border-radius: 4px;
+}
+.notice-content::-webkit-scrollbar-track {
+  background: #dcfce7;
+  border-radius: 4px;
+}
 
 label{display:block;font-weight:800;font-size:19px;margin:0 0 10px;color:#111}
 .field{margin-bottom:24px} 
@@ -64,7 +86,6 @@ textarea{min-height:110px;resize:vertical}
 .primary{background:#0b632c;color:#fff}.primary:hover{background:#084d22}
 .secondary{background:#e2e8f0;color:#111;border:1px solid #cbd5e1}.secondary:hover{background:#cbd5e1}
 
-/* 모바일 정렬 수정을 위한 Flexbox 스타일 개선 */
 .status{
   padding:18px 20px;
   border-radius:12px;
@@ -109,7 +130,6 @@ textarea{min-height:110px;resize:vertical}
   .calendar div{min-height:56px;padding:4px;font-size:14px}
   .card{padding:16px}
   
-  /* 소형 모바일 전용 수평 정렬 스타일 조율 */
   .status{
     padding:14px 16px;
   }
@@ -162,7 +182,6 @@ textarea{min-height:110px;resize:vertical}
 <div class="field"><label>신청 인원</label><div class="actions"><button class="secondary" style="width:60px;" onclick="changeQty(-1)">−</button><input id="qty" value="1" readonly style="text-align:center;font-weight:900;font-size:22px;"><button class="secondary" style="width:60px;" onclick="changeQty(1)">+</button></div></div>
 <div class="field"><label>기타 요청사항</label><textarea id="etc" placeholder="기타 요청사항을 작성해주세요"></textarea></div>
 
-<!-- 줄 맞춤이 적용된 예상 신청금액 영역 -->
 <div class="status">
   <span class="status-label">예상 신청금액 (1일 기준)</span>
   <span class="status-price" id="price">₩120,000</span>
