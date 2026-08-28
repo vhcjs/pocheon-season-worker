@@ -18,7 +18,6 @@ main{padding:28px 20px}.admin{max-width:1200px;margin:auto}.title{text-align:cen
 .stat-card .val{font-size:22px;font-weight:800;color:#168b43;margin-top:4px}
 label{display:block;font-weight:700;margin:0 0 8px}.field{margin-bottom:17px} input,textarea,select{width:100%;padding:13px;border:1px solid #d5d5d5;border-radius:8px;background:#fff} textarea{min-height:90px;resize:vertical}
 
-/* 버튼 정렬 툴바 개선 */
 .toolbar{display:grid;grid-template-columns:repeat(auto-fit, minmax(180px, 1fr));gap:10px;margin-bottom:18px;align-items:center}
 .toolbar-btn{height:46px;padding:0 14px;border:1px solid transparent;border-radius:8px;font-weight:800;font-size:14px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;white-space:nowrap;margin:0;box-shadow:0 1px 3px rgba(0,0,0,0.08);text-align:center;}
 .toolbar-btn.excel{background:#0d6efd;color:#fff}.toolbar-btn.upload{background:#198754;color:#fff}.toolbar-btn.stats{background:#6f42c1;color:#fff}.toolbar-btn.sample{background:#fd7e14;color:#fff}.toolbar-btn.reset{background:#dc3545;color:#fff}.toolbar-btn.preview{background:#20c997;color:#fff}
@@ -37,10 +36,8 @@ label{display:block;font-weight:700;margin:0 0 8px}.field{margin-bottom:17px} in
 .badge{display:inline-block;padding:5px 10px;border-radius:20px;background:#eee;font-size:13px;white-space:nowrap;}.badge.done{background:#dff5e6;color:#08752f}.badge.wait{background:#fff3cd;color:#8a6500}.badge.cancel{background:#f8d7da;color:#721c24}
 .tag-new{display:inline-block;padding:2px 6px;border-radius:4px;background:#e63946;color:#fff;font-size:11px;font-weight:bold;margin-left:4px;vertical-align:middle;}
 
-/* 공통 창 모달 백그라운드 */
 .modal-overlay{display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.5);z-index:9998;}
 
-/* 드래그 및 크기조절 가능한 통합 모달 창 스타일 */
 .resizable-modal {
   display: none;
   position: fixed;
@@ -62,7 +59,6 @@ label{display:block;font-weight:700;margin:0 0 8px}.field{margin-bottom:17px} in
   max-height: 95vh;
 }
 
-/* 팝업 헤더 (드래그 핸들) */
 .modal-drag-header {
   background: #168b43;
   color: #fff;
@@ -77,7 +73,6 @@ label{display:block;font-weight:700;margin:0 0 8px}.field{margin-bottom:17px} in
 }
 .modal-drag-header button { background:none; border:none; color:#fff; font-size:18px; cursor:pointer; }
 
-/* 팝업 바디 */
 .modal-drag-body {
   flex: 1;
   padding: 20px;
@@ -85,7 +80,6 @@ label{display:block;font-weight:700;margin:0 0 8px}.field{margin-bottom:17px} in
   font-size: 14px;
 }
 
-/* PC화면 미리보기 팝업 특화 스타일 */
 #previewWindow {
   width: 1000px;
   height: 750px;
@@ -130,7 +124,6 @@ label{display:block;font-weight:700;margin:0 0 8px}.field{margin-bottom:17px} in
 }
 @keyframes slideUp { from { transform: translateY(50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
 
-/* 모바일 전용 반응형 팝업 스타일 */
 @media (max-width: 768px) {
   .resizable-modal {
     width: 95vw !important;
@@ -200,7 +193,6 @@ label{display:block;font-weight:700;margin:0 0 8px}.field{margin-bottom:17px} in
 </div></main>
 </div>
 
-<!-- 이동 및 크기조절 가능한 통합 모달 창 -->
 <div id="modalOverlay" class="modal-overlay"></div>
 
 <div id="invoiceModal" class="resizable-modal">
@@ -220,7 +212,6 @@ label{display:block;font-weight:700;margin:0 0 8px}.field{margin-bottom:17px} in
   </div>
 </div>
 
-<!-- 이동 및 크기조절 가능한 신청자 PC 모드 창 -->
 <div id="previewWindow" class="resizable-modal">
   <div class="modal-drag-header" id="previewHeader">
     <span>🖥️ 신청자 접수 화면 (창 드래그 이동 / 오른쪽 아래 크기 조절)</span>
@@ -229,7 +220,6 @@ label{display:block;font-weight:700;margin:0 0 8px}.field{margin-bottom:17px} in
   <iframe style="flex:1; border:none; width:100%; height:100%;" src="about:blank" id="previewIframe"></iframe>
 </div>
 
-<!-- 실시간 신규 신청 알림 팝업 -->
 <div id="toastAlert" class="toast-alert">
   🔔 <b>신규 예약 접수!</b><br>
   <span id="toastMsg">새로운 근로자 신청 건이 들어왔습니다.</span>
@@ -267,7 +257,6 @@ window.addEventListener('DOMContentLoaded', () => {
     initRealtimeSubscription();
   }
   
-  // 모든 팝업창에 드래그 이동 기능 적용
   makeElementDraggable(document.getElementById("previewWindow"), document.getElementById("previewHeader"));
   makeElementDraggable(document.getElementById("invoiceModal"), document.getElementById("invoiceModalHeader"));
 });
@@ -322,7 +311,6 @@ function toggleApplicantPreview() {
   }
 }
 
-/* 드래그 이동 함수 */
 function makeElementDraggable(elmnt, handle) {
   let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
   handle.onmousedown = dragMouseDown;
@@ -465,6 +453,7 @@ async function renderAdmin() {
   document.getElementById('adminTable').innerHTML = html;
 }
 
+/* 자주 배정된 근로자 내림차순 정렬 반영 */
 async function openFarmerHistoryModal(phone, farmerName) {
   const data = await apiFetch('/apps', 'GET');
   const apps = data.apps || [];
@@ -491,7 +480,10 @@ async function openFarmerHistoryModal(phone, farmerName) {
     });
   });
 
-  let prefWorkersArr = Object.keys(workerCountMap).map(id => {
+  // 배정 횟수(count) 기준 내림차순 정렬
+  let sortedWorkerIds = Object.keys(workerCountMap).sort((a, b) => workerCountMap[b] - workerCountMap[a]);
+
+  let prefWorkersArr = sortedWorkerIds.map(id => {
     const w = workers.find(x => x.id === id);
     const nameStr = w ? (w.callName ? `[${w.callName}] ${w.name}` : w.name) : id;
     return `${nameStr} (${workerCountMap[id]}회 배정)`;
@@ -514,7 +506,7 @@ async function openFarmerHistoryModal(phone, farmerName) {
       <div style="color:#168b43">${genderPrefText}</div>
     </div>
     <div class="farmer-profile-item" style="grid-column: span 2;">
-      <label>자주 배정된 근로자 (선호 근로자)</label>
+      <label>자주 배정된 근로자 (최다 배정순)</label>
       <div>${prefWorkerText}</div>
     </div>
     <div class="farmer-profile-item" style="grid-column: span 2;">
@@ -964,7 +956,7 @@ function createSampleData() {
     apps: [
       { no: 'REC-2026-001', createdAt: '2026-08-28 10:15', date: formatDate(nextMonthObj), farmerName: '김포천', phone: '010-1111-2222', address: '경기도 포천시 영중면 성동리 123', work: '사과 수확 및 과수원 정리', qty: 2, status: '배정완료', selectedWorkerIds: ['W001', 'W002'], overtimeHours: 2, totalPrice: (2 * BASE_DAILY_PRICE) + (2 * 2 * OVERTIME_HOURLY_WAGE) },
       { no: 'REC-2026-002', createdAt: '2026-08-28 11:30', date: formatDate(nextMonthObj2), farmerName: '이오성', phone: '010-3333-4444', address: '경기도 포천시 이동면 장암리 456', work: '고추밭 비닐 고르기', qty: 3, status: '접수대기', selectedWorkerIds: [], overtimeHours: 0, totalPrice: 0 },
-      { no: 'REC-2026-003', createdAt: '2026-08-28 14:00', date: formatDate(nextMonthObj3), farmerName: '김포천', phone: '010-1111-2222', address: '경기도 포천시 신북면 삼정리 789', work: '인삼밭 차광막 설치', qty: 2, status: '배정완료', selectedWorkerIds: ['W003', 'W004'], overtimeHours: 0, totalPrice: 2 * BASE_DAILY_PRICE }
+      { no: 'REC-2026-003', createdAt: '2026-08-28 14:00', date: formatDate(nextMonthObj3), farmerName: '김포천', phone: '010-1111-2222', address: '경기도 포천시 신북면 삼정리 789', work: '인삼밭 차광막 설치', qty: 2, status: '배정완료', selectedWorkerIds: ['W001', 'W004'], overtimeHours: 0, totalPrice: 2 * BASE_DAILY_PRICE }
     ]
   };
   localStorage.setItem(KEY, JSON.stringify(sampleApps));
