@@ -424,7 +424,20 @@ async function renderAdmin() {
       if(a.status === '취소') badgeClass = 'cancel';
 
       let createdAtStr = a.createdAt || a.created_at || '-';
-      if (createdAtStr.length > 16) createdAtStr = createdAtStr.substring(0, 16).replace('T', ' ');
+      if (createdAtStr !== '-') {
+        const dateObj = new Date(createdAtStr);
+        if (!isNaN(dateObj.getTime())) {
+          dateObj.setHours(dateObj.getHours() + 9);
+          const yyyy = dateObj.getFullYear();
+          const mm = String(dateObj.getMonth() + 1).padStart(2, '0');
+          const dd = String(dateObj.getDate()).padStart(2, '0');
+          const hh = String(dateObj.getHours()).padStart(2, '0');
+          const min = String(dateObj.getMinutes()).padStart(2, '0');
+          createdAtStr = `${yyyy}-${mm}-${dd} ${hh}:${min}`;
+        } else if (createdAtStr.length > 16) {
+          createdAtStr = createdAtStr.substring(0, 16).replace('T', ' ');
+        }
+      }
 
       const isNewFarmer = (phoneCounts[a.phone] || 0) <= 1;
       const newBadge = isNewFarmer ? `<span class="tag-new">신규</span>` : '';
@@ -480,7 +493,6 @@ async function openFarmerHistoryModal(phone, farmerName) {
     });
   });
 
-  // 배정 횟수(count) 기준 내림차순 정렬
   let sortedWorkerIds = Object.keys(workerCountMap).sort((a, b) => workerCountMap[b] - workerCountMap[a]);
 
   let prefWorkersArr = sortedWorkerIds.map(id => {
