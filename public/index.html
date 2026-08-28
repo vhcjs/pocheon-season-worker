@@ -25,7 +25,8 @@ main{padding:30px 20px}
 .card{border:2px solid #bbb;border-radius:16px;padding:24px;margin-bottom:24px;background:#fff;box-shadow:0 4px 12px rgba(0,0,0,0.08)}
 .notice-card{background:#f0f9f3;border:2px solid #168b43;border-left:10px solid #005a2b}
 .notice-title{font-size:22px;font-weight:900;color:#005a2b;margin-bottom:12px;display:flex;align-items:center;gap:8px}
-.notice-content{font-size:18px;color:#111;line-height:1.7;white-space:pre-line;font-weight:500}
+/* 공지사항 내용이 많아지면 스크롤바가 생기도록 설정 */
+.notice-content{font-size:18px;color:#111;line-height:1.7;white-space:pre-line;font-weight:500;max-height:200px;overflow-y:auto;padding-right:8px;}
 
 /* 폼 요소 및 레이블 확대 */
 label{display:block;font-weight:800;margin:0 0 10px;font-size:20px;color:#000}
