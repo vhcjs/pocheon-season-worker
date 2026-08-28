@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>포천시 위탁형 계절근로자 관리 시스템</title>
+<title>포천시 위탁형 계절근로자 관리자 시스템</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <style>
@@ -11,10 +11,6 @@
 button,input,textarea,select{font:inherit} .app{max-width:1100px;margin:auto;background:#fff;min-height:100vh}
 header{height:70px;display:flex;align-items:center;justify-content:space-between;padding:0 22px;border-bottom:1px solid #ddd;background:#168b43;color:#fff}
 .logo{font-weight:800;font-size:18px}
-.nav-tabs{display:flex;gap:10px;}
-.nav-btn{background:rgba(255,255,255,0.2);color:#fff;border:none;padding:8px 16px;border-radius:20px;font-weight:700;cursor:pointer;}
-.nav-btn.active{background:#fff;color:#168b43;}
-
 main{padding:28px 20px}.admin{max-width:1100px;margin:auto}.title{text-align:center;font-size:28px;font-weight:800;margin:10px 0 28px}
 .card{border:1px solid #ddd;border-radius:14px;padding:18px;margin-bottom:16px;background:#fff;box-shadow:0 2px 8px #0000000a}
 .stats-grid{display:grid;grid-template-columns:repeat(auto-fit, minmax(200px, 1fr));gap:12px;margin-bottom:16px}
@@ -36,7 +32,7 @@ label{display:block;font-weight:700;margin:0 0 8px}.field{margin-bottom:17px} in
 
 .mini{padding:6px 12px;border:1px solid #ccc;background:#fff;border-radius:6px;cursor:pointer;font-weight:700;white-space:nowrap;display:inline-flex;align-items:center;justify-content:center;line-height:1.2;margin:2px 0;font-size:13px;}
 .badge{display:inline-block;padding:5px 10px;border-radius:20px;background:#eee;font-size:13px;white-space:nowrap;}.badge.done{background:#dff5e6;color:#08752f}.badge.wait{background:#fff3cd;color:#8a6500}.badge.cancel{background:#f8d7da;color:#721c24}
-.modal{display:none;position fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);align-items:center;justify-content:center;z-index:9999}
+.modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);align-items:center;justify-content:center;z-index:9999}
 .invoice-box{background:#fff;padding:30px;border-radius:12px;width:90%;max-width:850px;box-shadow:0 4px 20px rgba(0,0,0,0.2);max-height:85vh;overflow-y:auto;font-size:14px;margin:auto;}
 
 .scrollable-table-wrap { width: 100%; overflow-x: auto; margin: 15px 0; border: 1px solid #ddd; border-radius: 8px; }
@@ -47,6 +43,7 @@ label{display:block;font-weight:700;margin:0 0 8px}.field{margin-bottom:17px} in
 .filter-row {display:flex;gap:10px;align-items:center;margin-bottom:15px;background:#f8f9fa;padding:12px;border-radius:8px;border:1px solid #ddd;font-size:14px;flex-wrap:wrap;}
 .filter-row select {width:auto;padding:8px;border-radius:6px;border:1px solid #ccc;font-size:14px;}
 
+/* 신규/기존 태그 스타일 추가 */
 .badge.new-user { background:#e3f2fd; color:#0d6efd; font-weight:bold; }
 .badge.old-user { background:#fff3cd; color:#8a6500; font-weight:bold; }
 
@@ -62,110 +59,52 @@ label{display:block;font-weight:700;margin:0 0 8px}.field{margin-bottom:17px} in
 </head>
 <body>
 
-<div class="app">
-  <header>
-    <div class="logo">포천시 농업재단 계절근로자 시스템</div>
-    <div class="nav-tabs">
-      <button class="nav-btn active" id="btnTabUser" onclick="switchTab('user')">👨‍🌾 농가 신청하기</button>
-      <button class="nav-btn" id="btnTabAdmin" onclick="switchTab('admin')">🔒 관리자 페이지</button>
+<div id="loginModal" class="modal" style="display:flex">
+  <div class="login-box">
+    <h2 style="margin-top:0;color:#168b43">🔒 관리자 로그인</h2>
+    <p style="font-size:14px;color:#666">관리자 계정 정보를 입력해 주세요.</p>
+    <div class="field" style="text-align:left"><label>아이디</label><input id="adminId" value="admin"></div>
+    <div class="field" style="text-align:left"><label>비밀번호</label><input type="password" id="adminPw" placeholder="비밀번호 입력"></div>
+    <div style="text-align:left;margin-bottom:15px;font-size:14px;color:#444;">
+      <label style="display:flex;align-items:center;gap:6px;font-weight:normal;cursor:pointer;">
+        <input type="checkbox" id="rememberLogin" style="width:auto;margin:0;" checked> 로그인 상태 유지 (새로고침 방지)
+      </label>
     </div>
-  </header>
-
-  <!-- 1. 농가(신청자) 전용 페이지 -->
-  <main id="userPage">
-    <div class="admin" style="max-width:650px;">
-      <div class="title">계절근로자 지원 신청</div>
-      
-      <!-- 공지사항 표시 카드 -->
-      <div class="card" style="background:#f8f9fa; border-left: 5px solid #168b43;">
-        <b style="font-size:16px; color:#168b43;" id="displayNoticeTitle">📢 안내사항</b>
-        <p style="margin:8px 0 0 0; font-size:14px; color:#444; white-space:pre-line;" id="displayNoticeBody">내용을 불러오는 중입니다...</p>
-      </div>
-
-      <div class="card">
-        <form id="userAppForm" onsubmit="handleUserSubmit(event)">
-          <div class="field">
-            <label>농가명 (신청자 성명) *</label>
-            <input id="userFarmerName" required placeholder="예: 김포천">
-          </div>
-          <div class="field">
-            <label>연락처 *</label>
-            <input id="userPhone" type="tel" required placeholder="예: 010-1234-5678">
-          </div>
-          <div class="field">
-            <label>농지 주소 *</label>
-            <input id="userAddress" required placeholder="예: 경기도 포천시 영중면 성동리 123">
-          </div>
-          <div class="field">
-            <label>작업 요청 일자 *</label>
-            <input id="userDate" type="date" required>
-          </div>
-          <div class="field">
-            <label>필요 인원 (명) *</label>
-            <input id="userQty" type="number" min="1" max="20" value="1" required>
-          </div>
-          <div class="field">
-            <label>주요 작업 내용 *</label>
-            <textarea id="userWork" required placeholder="예: 사과 수확 작업, 고추밭 비닐 고르기 등"></textarea>
-          </div>
-          <button type="submit" class="primary" style="width:100%; height:50px; font-size:16px; margin-top:10px;">
-            📝 지원 신청서 제출하기
-          </button>
-        </form>
-      </div>
-    </div>
-  </main>
-
-  <!-- 2. 관리자 모달 및 페이지 (기존 어드민 소스 완전 동일) -->
-  <div id="loginModal" class="modal">
-    <div class="login-box">
-      <h2 style="margin-top:0;color:#168b43">🔒 관리자 로그인</h2>
-      <p style="font-size:14px;color:#666">관리자 계정 정보를 입력해 주세요.</p>
-      <div class="field" style="text-align:left"><label>아이디</label><input id="adminId" value="admin"></div>
-      <div class="field" style="text-align:left"><label>비밀번호</label><input type="password" id="adminPw" placeholder="비밀번호 입력"></div>
-      <div style="text-align:left;margin-bottom:15px;font-size:14px;color:#444;">
-        <label style="display:flex;align-items:center;gap:6px;font-weight:normal;cursor:pointer;">
-          <input type="checkbox" id="rememberLogin" style="width:auto;margin:0;" checked> 로그인 상태 유지 (새로고침 방지)
-        </label>
-      </div>
-      <button class="primary" style="width:100%" onclick="checkLogin()">로그인</button>
-    </div>
+    <button class="primary" style="width:100%" onclick="checkLogin()">로그인</button>
   </div>
+</div>
 
-  <main id="adminApp" style="display:none">
-    <div class="admin">
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-        <div class="title" style="margin:0;">계절근로자 배정 및 정산 관리</div>
-        <button class="mini" onclick="logout()" style="background:#dc3545;color:#fff;padding:8px 15px;">로그아웃</button>
-      </div>
+<div class="app" id="adminApp" style="display:none">
+<header><div class="logo">포천시 농업재단 [관리자 전용 정산시스템]</div><button class="mini" onclick="logout()" style="background:#fff;color:#168b43">로그아웃</button></header>
+<main><div class="admin">
+<div class="title">계절근로자 배정 및 정산 관리</div>
 
-      <div class="stats-grid">
-        <div class="stat-card"><div>총 신청 농가수</div><div class="val" id="statFarmerCount">0 농가</div></div>
-        <div class="stat-card"><div>총 신청/작업 건수</div><div class="val" id="statAppCount">0 건</div></div>
-        <div class="stat-card"><div>총 누적 정산금액</div><div class="val" id="statTotalPrice">₩0</div></div>
-      </div>
+<div class="stats-grid">
+  <div class="stat-card"><div>총 신청 농가수</div><div class="val" id="statFarmerCount">0 농가</div></div>
+  <div class="stat-card"><div>총 신청/작업 건수</div><div class="val" id="statAppCount">0 건</div></div>
+  <div class="stat-card"><div>총 누적 정산금액</div><div class="val" id="statTotalPrice">₩0</div></div>
+</div>
 
-      <div class="card">
-        <b>📢 공지사항 수정 관리</b>
-        <div class="field" style="margin-top:10px"><label>공지 제목</label><input id="inputNoticeTitle"></div>
-        <div class="field"><label>공지 내용</label><textarea id="inputNoticeBody" style="min-height:80px"></textarea></div>
-        <button class="primary" onclick="saveNotice()" style="padding:10px 15px">공지사항 저장 및 반영</button>
-      </div>
+<div class="card">
+  <b>📢 공지사항 수정 관리</b>
+  <div class="field" style="margin-top:10px"><label>공지 제목</label><input id="inputNoticeTitle"></div>
+  <div class="field"><label>공지 내용</label><textarea id="inputNoticeBody" style="min-height:80px"></textarea></div>
+  <button class="primary" onclick="saveNotice()" style="padding:10px 15px">공지사항 저장 및 반영</button>
+</div>
 
-      <div class="toolbar">
-        <button class="toolbar-btn excel" onclick="exportCombinedExcel()">📊 통합 정산·급여집계표 (엑셀)</button>
-        <label class="toolbar-btn upload">
-          📁 근로자 명단 엑셀 업로드
-          <input type="file" id="excelUpload" accept=".xlsx, .xls" style="display:none" onchange="handleExcelUpload(event)">
-        </label>
-        <button class="toolbar-btn stats" onclick="showWorkerStats()">👥 월별/연도별 급여명세서 (라오스어)</button>
-        <button class="toolbar-btn sample" onclick="createSampleData()">🧪 샘플 데이터 생성</button>
-        <button class="toolbar-btn reset" onclick="clearData()">전체 초기화</button>
-      </div>
+<div class="toolbar">
+  <button class="toolbar-btn excel" onclick="exportCombinedExcel()">📊 통합 정산·급여집계표 (엑셀)</button>
+  <label class="toolbar-btn upload">
+    📁 근로자 명단 엑셀 업로드
+    <input type="file" id="excelUpload" accept=".xlsx, .xls" style="display:none" onchange="handleExcelUpload(event)">
+  </label>
+  <button class="toolbar-btn stats" onclick="showWorkerStats()">👥 월별/연도별 급여명세서 (라오스어)</button>
+  <button class="toolbar-btn sample" onclick="createSampleData()">🧪 샘플 데이터 생성</button>
+  <button class="toolbar-btn reset" onclick="clearData()">전체 초기화</button>
+</div>
 
-      <div id="adminTable" class="table-wrap"></div>
-    </div>
-  </main>
+<div id="adminTable" class="table-wrap"></div>
+</div></main>
 </div>
 
 <div id="invoiceModal" class="modal">
@@ -205,82 +144,14 @@ const defaultWorkers = [
 ];
 
 window.addEventListener('DOMContentLoaded', () => {
-  loadNotice();
-  // 기본 신청서 작업일자에 오늘 날짜 세팅
-  const today = new Date().toISOString().split('T')[0];
-  document.getElementById('userDate').value = today;
-});
-
-// 탭 전환 제어
-function switchTab(tab) {
-  const btnUser = document.getElementById('btnTabUser');
-  const btnAdmin = document.getElementById('btnTabAdmin');
-  const userPage = document.getElementById('userPage');
-  const adminApp = document.getElementById('adminApp');
-  const loginModal = document.getElementById('loginModal');
-
-  if (tab === 'user') {
-    btnUser.classList.add('active');
-    btnAdmin.classList.remove('active');
-    userPage.style.display = 'block';
-    adminApp.style.display = 'none';
-    loginModal.style.display = 'none';
-  } else {
-    btnAdmin.classList.add('active');
-    btnUser.classList.remove('active');
-    userPage.style.display = 'none';
-    
-    // 로그인 세션 체크
-    const isLogged = localStorage.getItem(LOGIN_SESSION_KEY);
-    if (isLogged === 'true') {
-      loginModal.style.display = 'none';
-      adminApp.style.display = 'block';
-      renderAdmin();
-    } else {
-      loginModal.style.display = 'flex';
-      adminApp.style.display = 'none';
-    }
+  const isLogged = localStorage.getItem(LOGIN_SESSION_KEY);
+  if (isLogged === 'true') {
+    document.getElementById('loginModal').style.display = 'none';
+    document.getElementById('adminApp').style.display = 'block';
+    loadNotice();
+    renderAdmin();
   }
-}
-
-// 농가 지원 신청서 제출 처리
-async function handleUserSubmit(e) {
-  e.preventDefault();
-  
-  const name = document.getElementById('userFarmerName').value.trim();
-  const phone = document.getElementById('userPhone').value.trim();
-  const address = document.getElementById('userAddress').value.trim();
-  const date = document.getElementById('userDate').value;
-  const qty = parseInt(document.getElementById('userQty').value, 10);
-  const work = document.getElementById('userWork').value.trim();
-
-  const no = `REC-${new Date().getFullYear()}-${String(Math.floor(Math.random() * 900) + 100)}`;
-  
-  const newApp = {
-    no: no,
-    date: date,
-    farmerName: name,
-    phone: phone,
-    address: address,
-    work: work,
-    qty: qty,
-    status: '접수대기',
-    selectedWorkerIds: [],
-    overtimeHours: 0,
-    totalPrice: 0
-  };
-
-  await apiFetch('/apps', 'POST', newApp);
-
-  // 로컬 스토리지 업데이트
-  let currentApps = JSON.parse(localStorage.getItem(KEY) || '{"apps":[]}');
-  currentApps.apps.push(newApp);
-  localStorage.setItem(KEY, JSON.stringify(currentApps));
-
-  alert(`계절근로자 신청이 성공적으로 접수되었습니다.\n[접수번호: ${no}]`);
-  document.getElementById('userAppForm').reset();
-  document.getElementById('userDate').value = new Date().toISOString().split('T')[0];
-}
+});
 
 function checkLogin() {
   const id = document.getElementById('adminId').value.trim();
@@ -291,6 +162,7 @@ function checkLogin() {
     if (remember) { localStorage.setItem(LOGIN_SESSION_KEY, 'true'); }
     document.getElementById('loginModal').style.display = 'none';
     document.getElementById('adminApp').style.display = 'block';
+    loadNotice();
     renderAdmin();
   } else {
     alert('아이디 또는 비밀번호가 일치하지 않습니다.');
@@ -299,7 +171,7 @@ function checkLogin() {
 
 function logout() {
   localStorage.removeItem(LOGIN_SESSION_KEY);
-  switchTab('user');
+  location.reload();
 }
 
 async function fetchWorkersFromDB() {
@@ -322,17 +194,12 @@ function loadNotice() {
   const data = JSON.parse(localStorage.getItem(NOTICE_KEY) || '{"title":"📢 포천시 계절근로자 신청 안내","body":"농가 일손이 필요하신 분은 시스템을 통해 편리하게 신청하세요."}');
   document.getElementById('inputNoticeTitle').value = data.title;
   document.getElementById('inputNoticeBody').value = data.body;
-  
-  // 사용자 신청 페이지 공지사항 세팅
-  document.getElementById('displayNoticeTitle').textContent = data.title;
-  document.getElementById('displayNoticeBody').textContent = data.body;
 }
 
 function saveNotice() {
   const title = document.getElementById('inputNoticeTitle').value.trim();
   const body = document.getElementById('inputNoticeBody').value.trim();
   localStorage.setItem(NOTICE_KEY, JSON.stringify({ title, body }));
-  loadNotice();
   alert('공지사항이 저장되었습니다.');
 }
 
@@ -360,9 +227,10 @@ async function apiFetch(endpoint, method = 'GET', body = null) {
   }
 }
 
+// 과거 신청 데이터를 바탕으로 농가 이력/선호 분석 함수
 function getFarmerHistory(apps, currentPhone, currentNo) {
   const pastApps = apps.filter(a => a.phone === currentPhone && a.no !== currentNo);
-  if (pastApps.length === 0) return null;
+  if (pastApps.length === 0) return null; // 과거 이력 없음 (신규)
 
   const latest = pastApps[pastApps.length - 1];
   const works = pastApps.map(a => a.work).filter(Boolean);
@@ -405,6 +273,7 @@ async function renderAdmin() {
       if(a.status === '배정완료') badgeClass = 'done';
       if(a.status === '취소') badgeClass = 'cancel';
 
+      // 기존/신규 구분 및 이력 정보 추출
       const history = getFarmerHistory(apps, a.phone, a.no);
       let farmerTagHtml = `<span class="badge new-user">신규</span>`;
       let historyBtnHtml = '';
@@ -440,6 +309,7 @@ async function renderAdmin() {
   document.getElementById('adminTable').innerHTML = html;
 }
 
+// 이전 이력 및 선호 정보 팝업 모달
 async function showFarmerHistoryModal(phone, farmerName) {
   const data = await apiFetch('/apps', 'GET');
   const apps = data.apps || [];
