@@ -7,121 +7,32 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <style>
-/* 고령층 시인성 극대화 스타일 */
-*{box-sizing:border-box} 
-body{margin:0;font-family:"Malgun Gothic", "맑은 고딕", Arial, sans-serif;background:#eef5fb;color:#000;font-size:18px;line-height:1.5}
-button,input,textarea,select{font:inherit} 
-.app{max-width:1100px;margin:auto;background:#fff;min-height:100vh}
-
-/* 헤더 */
-header{height:80px;display:flex;align-items:center;justify-content:space-between;padding:0 24px;border-bottom:3px solid #168b43;background:#f8fcf9}
-.logo{font-weight:900;color:#168b43;font-size:22px}
-#clock{font-size:18px;font-weight:700;color:#333}
-
-main{padding:28px 20px}
-.panel{max-width:800px;margin:auto}
-.title{text-align:center;font-size:32px;font-weight:900;margin:15px 0 30px;color:#000;letter-spacing:-1px}
-
-/* 카드 기본 스타일 */
-.card{border:2px solid #555;border-radius:16px;padding:22px;margin-bottom:24px;background:#fff;box-shadow:0 4px 12px rgba(0,0,0,0.1)}
-
-/* 공지사항 카드 */
-.notice-card{background:#eef9f1;border:3px solid #168b43;border-left:10px solid #168b43}
-.notice-title{font-size:22px;font-weight:900;color:#168b43;margin-bottom:12px;display:flex;align-items:center;gap:8px}
-.notice-content{font-size:17px;color:#111;line-height:1.7;white-space:pre-line;font-weight:600}
-
-/* 입력 폼 스타일 */
-label{display:block;font-weight:800;font-size:20px;margin:0 0 10px;color:#000}
-.field{margin-bottom:24px} 
-input,textarea,select{width:100%;padding:16px;border:2px solid #555;border-radius:10px;background:#fff;font-size:18px;color:#000;font-weight:600} 
-input::placeholder, textarea::placeholder{color:#666;font-weight:normal}
-textarea{min-height:110px;resize:vertical}
-.row{display:grid;grid-template-columns:1fr 1fr;gap:18px}
-.hint{font-size:15px;color:#444;margin-top:8px;font-weight:600}
-
-/* 라디오 버튼 모바일 최적화 개선 */
-.radio-group {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  flex-wrap: wrap;
-}
-.radio-group label {
-  display: inline-flex;
-  align-items: center;
-  font-weight: 700;
-  font-size: 19px;
-  margin: 0;
-  padding: 8px 12px;
-  background: #f8f9fa;
-  border: 2px solid #777;
-  border-radius: 10px;
-  cursor: pointer;
-  flex: 1;
-  justify-content: center;
-  min-width: 90px;
-}
-.radio-group input {
-  width: 22px;
-  height: 22px;
-  margin-right: 8px;
-  cursor: pointer;
-}
-
-/* 달력 스타일 */
-.cal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;font-weight:900;font-size:22px}
-.calendar{display:grid;grid-template-columns:repeat(7,1fr);border:2px solid #333}
-.calendar div{min-height:64px;border-right:1px solid #777;border-bottom:1px solid #777;padding:8px;font-size:16px;font-weight:700}
-.calendar .head{background:#e0e0e0;font-weight:900;text-align:center;min-height:auto;font-size:18px;padding:10px 0;color:#000}
-.calendar .head:first-child{color:#d32f2f}
-.day{cursor:pointer;background:#fff}.day.disabled{color:#999;background:#f0f0f0;cursor:not-allowed}
-.day.holiday{color:#d32f2f;background:#ffebee}.day.selected{background:#168b43!important;color:#fff!important}
-.count{font-size:14px;color:#0044cc;margin-top:6px;font-weight:800}
-.selected .count{color:#fff!important}.disabled .count{color:#888}
-
-/* 근로자 선택 그리드 */
-.worker-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
-.worker{border:2px solid #777;border-radius:12px;padding:16px;cursor:pointer;background:#fff;transition:0.1s}
-.worker b{font-size:18px;display:block}
-.worker.selected{border:3px solid #168b43;background:#eef9f1}
-.worker.locked{background:#e0e0e0;color:#777;cursor:not-allowed;border-color:#ccc}
-.worker small{display:block;color:#444;margin-top:6px;font-size:15px;font-weight:600}
-
-/* 예상 금액 창 */
-.status{padding:18px;border-radius:12px;background:#e8f2fe;border:2px solid #2979ff;margin:20px 0;font-size:19px;color:#000;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px}
-.status b{font-weight:900}
-.price-tag{font-size:24px;font-weight:900;color:#0044cc;white-space:nowrap}
-
-/* 버튼 스타일 */
-.actions{display:flex;gap:12px;width:100%}
-.primary,.secondary{border:0;border-radius:12px;padding:20px;cursor:pointer;font-weight:900;text-align:center;font-size:22px;letter-spacing:-0.5px}
-.primary{background:#168b43;color:#fff;flex:2.5;box-shadow:0 4px 10px rgba(22,139,67,0.3)}
-.primary:hover{background:#127036}
-.secondary{background:#444;color:#fff;flex:1}
-.secondary:hover{background:#222}
-
-/* 미니 버튼 */
-.mini{padding:10px 18px;border:2px solid #333;background:#fff;border-radius:8px;cursor:pointer;font-weight:800;font-size:16px}
-
-/* 모달 알림창 */
-.modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);align-items:center;justify-content:center;z-index:9999}
-.invoice-box{background:#fff;padding:36px;border-radius:16px;width:90%;max-width:800px;box-shadow:0 6px 24px rgba(0,0,0,0.3);max-height:90vh;overflow-y:auto}
-.alert-box{background:#fff;padding:40px 32px;border-radius:20px;width:90%;max-width:460px;text-align:center;border:3px solid #333}
-.alert-icon{font-size:60px;margin-bottom:16px;display:block}
-.alert-title{font-size:26px;font-weight:900;color:#000;margin-bottom:12px}
-.alert-body{font-size:18px;color:#222;line-height:1.6;margin-bottom:28px;font-weight:600}
-.callname-tag{display:inline-block;background:#c8e6c9;color:#004d1a;font-weight:900;padding:3px 8px;border-radius:6px;border:1px solid #81c784;font-size:15px;margin-right:6px}
-
-@media(max-width:650px){
-  header{padding:0 16px}.logo{font-size:18px}
-  main{padding:16px 10px}.title{font-size:26px}
-  .row{grid-template-columns:1fr}.worker-grid{grid-template-columns:1fr}
-  .calendar div{min-height:56px;padding:4px;font-size:14px}
-  .actions{flex-direction:column}
-  .primary, .secondary{width:100%;padding:18px;font-size:20px}
-  .status{font-size:17px;padding:14px}
-  .price-tag{font-size:21px}
-}
+*{box-sizing:border-box} body{margin:0;font-family:Arial,"Noto Sans KR",sans-serif;background:#eef5fb;color:#111}
+button,input,textarea,select{font:inherit} .app{max-width:1100px;margin:auto;background:#fff;min-height:100vh}
+header{height:70px;display:flex;align-items:center;justify-content:space-between;padding:0 22px;border-bottom:1px solid #ddd}
+.logo{font-weight:800;color:#168b43;font-size:18px}
+main{padding:28px 20px}.panel{max-width:760px;margin:auto}.title{text-align:center;font-size:28px;font-weight:800;margin:10px 0 28px}
+.card{border:1px solid #ddd;border-radius:14px;padding:18px;margin-bottom:16px;background:#fff;box-shadow:0 2px 8px #0000000a}
+.notice-card{background:#f0f9f3;border:1px solid #c8e6c9;border-left:5px solid #168b43}
+.notice-title{font-size:16px;font-weight:700;color:#168b43;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.notice-content{font-size:14px;color:#333;line-height:1.6;white-space:pre-line}
+label{display:block;font-weight:700;margin:0 0 8px}.field{margin-bottom:17px} input,textarea,select{width:100%;padding:13px;border:1px solid #d5d5d5;border-radius:8px;background:#fff} textarea{min-height:90px;resize:vertical}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:14px}.hint{font-size:13px;color:#777;margin-top:6px}.radio label{display:inline-flex;align-items:center;font-weight:400;margin-right:18px}.radio input{width:auto;margin-right:5px}
+.cal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;font-weight:700}
+.calendar{display:grid;grid-template-columns:repeat(7,1fr);border:1px solid #ddd}.calendar div{min-height:52px;border-right:1px solid #ddd;border-bottom:1px solid #ddd;padding:7px;font-size:13px}.calendar .head{background:#f5f5f5;font-weight:700;text-align:center;min-height:auto}.calendar .head:first-child{color:#e11}
+.day{cursor:pointer}.day.disabled{color:#bbb;background:#f7f7f7;cursor:not-allowed}.day.holiday{color:#e11;background:#fff5f5}.day.selected{background:#168b43;color:#fff!important}.count{font-size:11px;color:#2255aa;margin-top:5px}.selected .count{color:#fff}.disabled .count{color:#a9a9a9}
+.worker-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:9px}.worker{border:1px solid #ddd;border-radius:9px;padding:12px;cursor:pointer;background:#fff;transition:0.2s}.worker.selected{border:2px solid #168b43;background:#effbf3}.worker.locked{background:#f1f1f1;color:#aaa;cursor:not-allowed;border-color:#eee}.worker small{display:block;color:#666;margin-top:4px;font-size:12px}.worker.locked small{color:#aaa}
+.actions{display:flex;gap:10px}.primary,.secondary{border:0;border-radius:8px;padding:14px 18px;cursor:pointer;font-weight:700}.primary{background:#00a83b;color:#fff;flex:1}.secondary{background:#eee;color:#333}
+.status{padding:12px;border-radius:8px;background:#f3f8ff;margin:12px 0}
+.mini{padding:6px 12px;border:1px solid #ccc;background:#fff;border-radius:6px;cursor:pointer;font-weight:700;white-space:nowrap;display:inline-flex;align-items:center;justify-content:center;line-height:1.2;margin:2px 0;}
+.modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);align-items:center;justify-content:center;z-index:9999}
+.invoice-box{background:#fff;padding:30px;border-radius:12px;width:90%;max-width:800px;box-shadow:0 4px 20px rgba(0,0,0,0.2);max-height:90vh;overflow-y:auto}
+.alert-box{background:#fff;padding:32px 28px;border-radius:16px;width:90%;max-width:420px;text-align:center;box-shadow:0 10px 30px rgba(0,0,0,0.25)}
+.alert-icon{font-size:48px;margin-bottom:12px;display:block}
+.alert-title{font-size:20px;font-weight:800;color:#111;margin-bottom:8px}
+.alert-body{font-size:14px;color:#555;line-height:1.5;margin-bottom:24px}
+.callname-tag{display:inline-block;background:#e8f5e9;color:#08752f;font-weight:800;padding:2px 6px;border-radius:4px;border:1px solid #a5d6a7;font-size:13px;margin-right:4px;}
+@media(max-width:650px){header{padding:0 14px}.logo{font-size:15px}main{padding:20px 12px}.title{font-size:23px}.row{grid-template-columns:1fr}.worker-grid{grid-template-columns:1fr}.calendar div{min-height:48px;padding:5px;font-size:12px}.card{padding:15px}}
 </style>
 </head>
 <body>
@@ -132,7 +43,7 @@ textarea{min-height:110px;resize:vertical}
 <div class="title">포천시 위탁형 계절근로자 신청</div>
 
 <div class="card notice-card">
-  <div class="notice-title" id="displayNoticeTitle">📢 공지사항</div>
+  <div class="notice-title" id="displayNoticeTitle">📢공지사항</div>
   <div class="notice-content" id="displayNoticeBody">공지사항을 불러오는 중입니다...</div>
 </div>
 
@@ -148,44 +59,23 @@ textarea{min-height:110px;resize:vertical}
 
 <div class="card">
 <div class="row">
-<div class="field"><label>농장주명</label><input id="farmerName" placeholder="농장주 성함을 입력하세요"></div>
+<div class="field"><label>농장주명</label><input id="farmerName" placeholder="농장주명을 입력하세요"></div>
 <div class="field"><label>전화번호</label><input id="phone" placeholder="010-0000-0000"></div>
 </div>
 <div class="field"><label>농지 주소</label><input id="address" placeholder="도로명 주소 또는 지번 주소를 입력하세요"></div>
 <div class="field"><label>작업 내용</label><textarea id="work" placeholder="예: 사과 적과 및 수확, 포장 작업"></textarea></div>
-
-<div class="field">
-  <label>선호 성별</label>
-  <div class="radio-group">
-    <label><input type="radio" name="gender" value="남성"> 남성</label>
-    <label><input type="radio" name="gender" value="여성"> 여성</label>
-    <label><input type="radio" name="gender" value="무관" checked> 무관</label>
-  </div>
-</div>
+<div class="field radio"><label>선호 성별</label>
+<label><input type="radio" name="gender" value="남성"> 남성</label>
+<label><input type="radio" name="gender" value="여성"> 여성</label>
+<label><input type="radio" name="gender" value="무관" checked> 무관</label></div>
 
 <div class="field"><label>선호 근로자 <span class="hint">(이미 배정된 근로자는 선택할 수 없습니다.)</span></label>
 <div id="workers" class="worker-grid"></div></div>
 
-<div class="field"><label>신청 인원</label>
-  <div class="actions" style="gap:8px;">
-    <button class="secondary" style="flex:1;font-size:24px;padding:12px;" onclick="changeQty(-1)">−</button>
-    <input id="qty" value="1" readonly style="text-align:center;flex:2;font-size:22px;font-weight:900;">
-    <button class="secondary" style="flex:1;font-size:24px;padding:12px;" onclick="changeQty(1)">+</button>
-  </div>
-</div>
-
+<div class="field"><label>신청 인원</label><div class="actions"><button class="secondary" onclick="changeQty(-1)">−</button><input id="qty" value="1" readonly style="text-align:center"><button class="secondary" onclick="changeQty(1)">+</button></div></div>
 <div class="field"><label>기타 요청사항</label><textarea id="etc" placeholder="기타 요청사항을 작성해주세요"></textarea></div>
-
-<div class="status">
-  <b>예상 신청금액 (1일 기본일당)</b> 
-  <span class="price-tag" id="price">₩120,000</span>
-</div>
-
-<div class="actions">
-  <button class="primary" onclick="submitApplication()">신청하기</button>
-  <button class="secondary" onclick="lookup()">신청조회 및 취소</button>
-</div>
-
+<div class="status"><b>예상 신청금액 (1일 기본일당 기준)</b> <span style="float:right;font-size:20px" id="price">₩120,000</span></div>
+<div class="actions"><button class="primary" onclick="submitApplication()">신청하기</button><button class="secondary" onclick="lookup()">신청조회 및 취소</button></div>
 </div>
 </div></main>
 </div>
@@ -193,7 +83,7 @@ textarea{min-height:110px;resize:vertical}
 <div id="invoiceModal" class="modal">
   <div class="invoice-box">
     <div id="invoiceContent"></div>
-    <div class="actions" style="margin-top:24px"><button class="secondary" style="width:100%" onclick="closeInvoice()">닫기</button></div>
+    <div class="actions" style="margin-top:20px"><button class="secondary" onclick="closeInvoice()">닫기</button></div>
   </div>
 </div>
 
@@ -202,13 +92,13 @@ textarea{min-height:110px;resize:vertical}
     <span class="alert-icon" id="alertIcon">✅</span>
     <div class="alert-title" id="alertTitle">처리 완료</div>
     <div class="alert-body" id="alertBody">요청하신 작업이 성공적으로 처리되었습니다.</div>
-    <button class="primary" style="width:100%;padding:16px;" onclick="closeAlertAndReset()">확인</button>
+    <button class="primary" style="width:100%" onclick="closeAlertAndReset()">확인</button>
   </div>
 </div>
 
 <script>
 const SUPABASE_URL = 'https://dcdxzofzkvdbppsetarb.supabase.co';
-const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRjZHh6b2Z6a3ZkYnBwc2V0YXJiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc1NzIzNzAsImV4cCI62103148370f0.g53YpeDm7XVQyLxDOTYa3n1pJ_xeyNAtdvgbpLZ4DZI';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRjZHh6b2Z6a3ZkYnBwc2V0YXJiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc1NzIzNzAsImV4cCI6MjEwMzE0ODM3MH0.g53YpeDm7XVQyLxDOTYa3n1pJ_xeyNAtdvgbpLZ4DZI';
 const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 const KEY = 'seasonWorkerPrototype_v1';
@@ -348,15 +238,15 @@ async function renderCalendar(){
     }
 
     if(dayOfWeek === 0) {
-      s += `<div class="disabled"><b style="font-size:18px">${d}</b><div class="count">휴무</div></div>`;
+      s += `<div class="disabled"><b>${d}</b><div class="count">휴무</div></div>`;
     } else if(holidayName) {
-      s += `<div class="disabled holiday"><b style="color:#d32f2f;font-size:18px">${d}</b><div class="count" style="color:#d32f2f">${holidayName}</div></div>`;
+      s += `<div class="disabled holiday"><b style="color:#e11">${d}</b><div class="count" style="color:#e11">${holidayName}</div></div>`;
     } else if(isPastOrToday || isTomorrowAfter5PM) {
-      s += `<div class="disabled"><b style="font-size:18px">${d}</b><div class="count">마감</div></div>`;
+      s += `<div class="disabled"><b>${d}</b><div class="count">마감/불가</div></div>`;
     } else {
       let used = apps.filter(a => a.date === dt && a.status !== '취소').reduce((n, a) => n + Number(a.qty), 0);
       let count = Math.max(0, workers.length - used);
-      s += `<div class="day ${dt === selectedDate ? 'selected' : ''}" onclick="pickDate('${dt}')"><b style="font-size:18px">${d}</b><div class="count">${count}/${workers.length}</div></div>`;
+      s += `<div class="day ${dt === selectedDate ? 'selected' : ''}" onclick="pickDate('${dt}')"><b>${d}</b><div class="count">${count}/${workers.length}</div></div>`;
     }
   }
   document.getElementById('calendar').innerHTML = s;
@@ -391,8 +281,8 @@ async function renderWorkers(){
   document.getElementById('workers').innerHTML = workers.map(w => {
     let locked = lockedSet.has(w.id), sel = selectedWorkers.includes(w.id);
     return `<div class="worker ${locked ? 'locked' : ''} ${sel ? 'selected' : ''}" onclick="${locked ? '' : 'toggleWorker(\'' + w.id + '\')'}">
-      <b>${sel ? '✓ 선택됨 ' : ''}${w.callName ? '<span class="callname-tag">['+w.callName+']</span>' : ''}${w.name}</b>
-      <small>성별: ${w.gender}${locked ? ' <b style="color:#d32f2f">(배정 완료)</b>' : ''}</small>
+      <b>${sel ? '✓ ' : ''}${w.callName ? '<span class="callname-tag">['+w.callName+']</span>' : ''}${w.name}</b>
+      <small>성별: ${w.gender}${locked ? ' <b style="color:#d33">(배정 완료)</b>' : ''}</small>
     </div>`;
   }).join('');
 }
@@ -481,27 +371,27 @@ async function lookup(){
     return; 
   }
 
-  let msg = `<h3 style="margin-top:0;color:#168b43;text-align:center;font-size:24px;">📋 신청 내역 조회 결과</h3>`;
-  msg += `<p style="font-size:16px;color:#333;text-align:center;margin-bottom:18px;font-weight:700;">검색어: <b>${rawQuery}</b> (총 ${userApps.length}건)</p>`;
+  let msg = `<h3 style="margin-top:0;color:#168b43;text-align:center;">📋 신청 내역 조회 결과</h3>`;
+  msg += `<p style="font-size:13px;color:#666;text-align:center;margin-bottom:15px;">검색어: <b>${rawQuery}</b> (총 ${userApps.length}건)</p>`;
   
   userApps.forEach((x, idx) => {
     let statusBg = x.status === '배정완료' ? '#dff5e6' : (x.status === '취소' ? '#f8d7da' : '#fff3cd');
     let statusColor = x.status === '배정완료' ? '#08752f' : (x.status === '취소' ? '#721c24' : '#8a6500');
 
-    msg += `<div style="border:2px solid #555;padding:16px;border-radius:10px;margin-bottom:14px;background:#fcfdfd;">
+    msg += `<div style="border:1px solid #ddd;padding:12px;border-radius:8px;margin-bottom:10px;background:#fcfdfd;">
       <div style="display:flex;justify-content:space-between;align-items:center;">
-        <b style="font-size:18px;">${idx + 1}. 접수번호: ${x.no}</b>
-        <span style="background:${statusBg};color:${statusColor};padding:4px 10px;border-radius:12px;font-size:15px;font-weight:bold;">${x.status || '접수대기'}</span>
+        <b>${idx + 1}. 접수번호: ${x.no}</b>
+        <span style="background:${statusBg};color:${statusColor};padding:3px 8px;border-radius:12px;font-size:12px;font-weight:bold;">${x.status || '접수대기'}</span>
       </div>
-      <div style="font-size:16px;color:#111;margin-top:10px;line-height:1.6;font-weight:600;">
+      <div style="font-size:13px;color:#444;margin-top:6px;line-height:1.5;">
         • 농가명: <b>${x.farmerName}</b> (${x.phone})<br>
         • 신청일: ${x.date} | 신청인원: ${x.qty}명<br>
         • 작업내용: ${x.work}
       </div>`;
     
     if (x.status !== '취소') {
-      msg += `<div style="text-align:right;margin-top:12px;">
-        <button class="mini" style="background:#dc3545;color:#fff;border:0;padding:8px 16px;font-size:16px;" onclick="cancelAppByUser('${x.no}')">취소하기</button>
+      msg += `<div style="text-align:right;margin-top:8px;">
+        <button class="mini" style="background:#dc3545;color:#fff;border:0;" onclick="cancelAppByUser('${x.no}')">취소하기</button>
       </div>`;
     }
     msg += `</div>`;
