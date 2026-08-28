@@ -427,45 +427,31 @@ async function renderAdmin() {
       if (createdAtStr !== '-') {
         let dateObj = new Date(createdAtStr);
         if (isNaN(dateObj.getTime())) {
-          // 만약 'YYYY-MM-DD HH:mm' 형태인 경우 파싱 보정
           dateObj = new Date(createdAtStr.replace(' ', 'T'));
         }
         
         if (!isNaN(dateObj.getTime())) {
-          // 이미 타임존이 포함되어 로컬로 변환된 값이 아닐 경우 대비해 UTC 기준 판별 후 +9시간 또는 강제 변환
-          // Supabase timestamp with time zone은 기본적으로 UTC ISO 문자열로 넘어오므로 브라우저가 로컬로 바꿀 때 꼬일 수 있음
-          // 안전하게 연/월/일/시/분 추출 (Z가 붙어있거나 하이브리드인 경우 처리)
-          const utcMs = dateObj.getTime();
-          // 만약 DB 문자열에 'Z'나 '+'가 포함되지 않았다면 순수 UTC로 간주하여 9시간 더함
-          if (!createdAtStr.includes('Z') && !createdAtStr.includes('+') && !createdAtStr.includes('T')) {
-            dateObj.setTime(utcMs + (9 * 60 * 60 * 1000));
-          } else {
-            // ISO 형식이면 브라우저가 이미 로컬 타임존으로 바꿨을 수 있으므로 그대로 표기하거나 확인
-            // 혹은 확실하게 KST(+9)로 고정 변환하기 위해 getUTCHours() 활용
-            const kstYear = dateObj.getUTCFullYear();
-            const kstMonth = String(dateObj.getUTCMonth() + 1).padStart(2, '0');
-            const kstDate = String(dateObj.getUTCDate()).padStart(2, '0');
-            let kstHour = dateObj.getUTCHours() + 9;
-            let kstDayOffset = 0;
-            if (kstHour >= 24) {
-              kstHour -= 24;
-              // 날짜 하루 증가 처리 필요시 추가 가능
-            }
-            const kstMin = String(dateObj.getUTCMinutes()).padStart(2, '0');
-            
-            // 임시로 명확하게 연-월-일 시:분 조합
-            const tempDate = new Date(dateObj.getTime());
-            tempDate.setHours(tempDate.getHours() + 9);
-            
-            const yyyy = tempDate.getFullYear();
-            const mm = String(tempDate.getMonth() + 1).padStart(2, '0');
-            const dd = String(tempDate.getDate()).padStart(2, '0');
-            const hh = String(tempDate.getHours()).padStart(2, '0');
-            const min = String(tempDate.getMinutes()).padStart(2, '0');
-            createdAtStr = `${yyyy}-${mm}-${dd} ${hh}:${min}`;
+          // KST 한국 시간대 기준으로 강제 포맷팅 적용
+          const realKstDate = new Date(dateObj.toLocaleString('en-US', { timeZone: 'Asia/Seoul' }));
+          
+          let yyyy = realKstDate.getFullYear();
+          let mm = String(realKstDate.getMonth() + 1).padStart(2, '0');
+          let dd = String(realKstDate.getDate()).padStart(2, '0');
+          let hh = String(realKstDate.getHours()).padStart(2, '0');
+          let min = String(realKstDate.getMinutes()).padStart(2, '0');
+          
+          // 만약 위 변환이 브라우저 환경에 따라 오인식될 경우를 대비한 UTC+9 직접 보정 로직 보완
+          if (isNaN(yyyy) || yyyy < 2020) {
+            const utcMs = dateObj.getTime();
+            const kstTime = new Date(utcMs + (9 * 60 * 60 * 1000));
+            yyyy = kstTime.getUTCFullYear();
+            mm = String(kstTime.getUTCMonth() + 1).padStart(2, '0');
+            dd = String(kstTime.getUTCDate()).padStart(2, '0');
+            hh = String(kstTime.getUTCHours()).padStart(2, '0');
+            min = String(kstTime.getUTCMinutes()).padStart(2, '0');
           }
-        } else if (createdAtStr.length > 16) {
-          createdAtStr = createdAtStr.substring(0, 16).replace('T', ' ');
+
+          createdAtStr = `${yyyy}-${mm}-${dd} ${hh}:${min}`;
         }
       }
 
@@ -496,7 +482,6 @@ async function renderAdmin() {
   document.getElementById('adminTable').innerHTML = html;
 }
 
-/* 자주 배정된 근로자 내림차순 정렬 반영 */
 async function openFarmerHistoryModal(phone, farmerName) {
   const data = await apiFetch('/apps', 'GET');
   const apps = data.apps || [];
