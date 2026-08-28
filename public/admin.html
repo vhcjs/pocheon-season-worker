@@ -47,7 +47,7 @@ label{display:block;font-weight:700;margin:0 0 8px}.field{margin-bottom:17px} in
 .badge.old-user { background:#fff3cd; color:#8a6500; font-weight:bold; }
 
 /* 드래그 가능한 모달창 스타일 지정 */
-#userPageModal { background: rgba(0,0,0,0.2); pointer-events: none; }
+#userPageModal { background: rgba(0,0,0,0.3); pointer-events: none; }
 #userPageContainer {
   pointer-events: auto;
   position: absolute;
@@ -95,7 +95,7 @@ label{display:block;font-weight:700;margin:0 0 8px}.field{margin-bottom:17px} in
 <header>
   <div class="logo">포천시 농업재단 [관리자 전용 정산시스템]</div>
   <div style="display:flex;gap:10px;">
-    <button class="mini" onclick="openUserViewModal()" style="background:#fff;color:#168b43;font-weight:bold;">📱 신청자 페이지 미리보기</button>
+    <button class="mini" onclick="openUserViewModal()" style="background:#fff;color:#168b43;font-weight:bold;">📱 신청자 페이지 미리보기 (실시간 예약가능)</button>
     <button class="mini" onclick="logout()" style="background:#fff;color:#dc3545;font-weight:bold;">로그아웃</button>
   </div>
 </header>
@@ -148,7 +148,7 @@ label{display:block;font-weight:700;margin:0 0 8px}.field{margin-bottom:17px} in
 <div id="userPageModal" class="modal">
   <div id="userPageContainer">
     <div id="userPageHeader" style="padding:15px 20px;background:#168b43;color:#fff;display:flex;justify-content:space-between;align-items:center;cursor:move;user-select:none;">
-      <h3 style="margin:0;font-size:16px;">📱 신청자 화면 미리보기 (여기 상단을 드래그하여 이동)</h3>
+      <h3 style="margin:0;font-size:16px;">📱 신청자 화면 미리보기 <span style="font-size:12px;background:#28a745;padding:2px 8px;border-radius:10px;margin-left:6px;">🔴 실시간 예약/연동 테스트 지원</span></h3>
       <button class="mini" onclick="closeUserViewModal()" style="background:#fff;color:#333;">닫기 ✕</button>
     </div>
     <iframe id="userPageIframe" style="width:100%;height:100%;border:none;"></iframe>
@@ -188,7 +188,6 @@ window.addEventListener('DOMContentLoaded', () => {
   makeModalDraggable(document.getElementById("userPageContainer"), document.getElementById("userPageHeader"));
 });
 
-/* 마우스 드래그 기능 구현 */
 function makeModalDraggable(elmnt, headerElmnt) {
   let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
   if (headerElmnt) {
@@ -223,7 +222,6 @@ function makeModalDraggable(elmnt, headerElmnt) {
   }
 }
 
-/* 신청자 화면 팝업 연동 생성 함수 */
 function openUserViewModal() {
   const container = document.getElementById('userPageContainer');
   container.style.top = '5vh';
@@ -344,7 +342,29 @@ let minSelectableDateStr = getMinSelectableDate(); let selectedDate = minSelecta
 function showAlert(icon, title, body, callback = null) { document.getElementById('alertIcon').textContent = icon; document.getElementById('alertTitle').textContent = title; document.getElementById('alertBody').innerHTML = body; document.getElementById('alertModal').style.display = 'flex'; pendingResetCallback = callback; }
 function closeAlertAndReset() { document.getElementById('alertModal').style.display = 'none'; if (pendingResetCallback) { pendingResetCallback(); pendingResetCallback = null; } }
 
-async function apiFetch(endpoint, method = 'GET', body = null) { try { if (endpoint === '/apps' && method === 'GET') { const { data, error } = await _supabase.from('apps').select('*').order('id', { ascending: true }); if (error) throw error; return { apps: data || [] }; } if (endpoint === '/apps' && method === 'POST') { const { data, error } = await _supabase.from('apps').insert([body]); if (error) throw error; return { success: true }; } if (endpoint.startsWith('/apps/') && method === 'PUT') { const { data, error } = await _supabase.from('apps').update(body).eq('no', body.no); if (error) throw error; return { success: true }; } } catch (e) { const local = JSON.parse(localStorage.getItem(KEY) || '{"apps":[]}'); return local; } }
+async function apiFetch(endpoint, method = 'GET', body = null) { 
+  try { 
+    if (endpoint === '/apps' && method === 'GET') { 
+      const { data, error } = await _supabase.from('apps').select('*').order('id', { ascending: true }); 
+      if (error) throw error; 
+      return { apps: data || [] }; 
+    } 
+    if (endpoint === '/apps' && method === 'POST') { 
+      const { data, error } = await _supabase.from('apps').insert([body]); 
+      if (error) throw error; 
+      return { success: true }; 
+    } 
+    if (endpoint.startsWith('/apps/') && method === 'PUT') { 
+      const { data, error } = await _supabase.from('apps').update(body).eq('no', body.no); 
+      if (error) throw error; 
+      return { success: true }; 
+    } 
+  } catch (e) { 
+    const local = JSON.parse(localStorage.getItem(KEY) || '{"apps":[]}'); 
+    return local; 
+  } 
+}
+
 async function getAvailableCount(dt) { workers = await fetchWorkersFromDB(); const data = await apiFetch('/apps', 'GET'); const apps = data.apps || []; let used = apps.filter(a => a.date === dt && a.status !== '취소').reduce((n, a) => n + Number(a.qty), 0); return Math.max(0, workers.length - used); }
 function changeMonth(diff){ currentMonth += diff; if(currentMonth > 12) { currentYear++; currentMonth = 1; } else if(currentMonth < 1) { currentYear--; currentMonth = 12; } renderCalendar(); }
 function daysInMonth(y, m){ return new Date(y, m, 0).getDate(); }
@@ -357,21 +377,43 @@ async function changeQty(n){ let availCount = await getAvailableCount(selectedDa
 function updatePrice(){ document.getElementById('price').textContent = '₩' + (qty * BASE_DAILY_PRICE).toLocaleString(); }
 function resetForm() { document.getElementById('farmerName').value = ''; document.getElementById('phone').value = ''; document.getElementById('address').value = ''; document.getElementById('work').value = ''; document.getElementById('etc').value = ''; selectedWorkers = []; qty = 1; document.getElementById('qty').value = 1; updatePrice(); renderCalendar(); renderWorkers(); }
 
+/* 실시간 예약 생성 및 즉시 부모 대시보드 및 달력 동기화 */
 async function submitApplication(){ 
   let farmerName = document.getElementById('farmerName').value.trim(), phone = document.getElementById('phone').value.trim(), address = document.getElementById('address').value.trim(), work = document.getElementById('work').value.trim(); 
   if(!farmerName || !phone || !address || !work){ showAlert('⚠️', '입력 확인', '모든 항목을 입력해주세요.'); return; } 
+  
+  let availCount = await getAvailableCount(selectedDate);
+  if (qty > availCount) {
+    showAlert('⚠️', '예약 불가', \`해당 날짜는 잔여 인원(\${availCount}명)을 초과하여 예약할 수 없습니다.\`);
+    return;
+  }
+
   const no = 'REC-2026-' + String(Math.floor(100 + Math.random() * 900)); 
-  const createdAt = new Date().toLocaleString('ko-KR'); // 접수 일시 저장
+  const createdAt = new Date().toLocaleString('ko-KR');
   const selectedWorkerNames = selectedWorkers.map(id => { let w = workers.find(x => x.id === id); return w ? (w.callName ? \`[\${w.callName}] \${w.name}\` : w.name) : ''; }); 
-  const payload = { no, date: selectedDate, createdAt, farmerName, phone, address, work, gender: document.querySelector('input[name="gender"]:checked')?.value || '무관', selectedWorkerIds: selectedWorkers, workers: selectedWorkerNames, qty, etc: document.getElementById('etc').value, status: '접수대기', baseHours: 10, overtimeHours: 0, totalPrice: qty * BASE_DAILY_PRICE }; 
+  
+  // 만약 특정 근로자를 직할 지명한 경우 상태를 자동 '배정완료' 처리
+  const isDirectAssigned = selectedWorkers.length > 0;
+  const initialStatus = isDirectAssigned ? '배정완료' : '접수대기';
+
+  const payload = { 
+    no, date: selectedDate, createdAt, farmerName, phone, address, work, 
+    gender: document.querySelector('input[name="gender"]:checked')?.value || '무관', 
+    selectedWorkerIds: selectedWorkers, workers: selectedWorkerNames, qty, etc: document.getElementById('etc').value, 
+    status: initialStatus, baseHours: 10, overtimeHours: 0, totalPrice: qty * BASE_DAILY_PRICE 
+  }; 
   
   let currentApps = JSON.parse(localStorage.getItem(KEY) || '{"apps":[]}'); 
   currentApps.apps.push(payload); 
   localStorage.setItem(KEY, JSON.stringify(currentApps)); 
   await apiFetch('/apps', 'POST', payload); 
   
-  showAlert('🎉', '신청 완료!', \`접수번호: <b style="color:#168b43">\${no}</b><br>접수일시: \${createdAt}<br>예정일: \${selectedDate}\`, resetForm); 
-  if (parent && parent.renderAdmin) parent.renderAdmin(); 
+  // 실시간 부모 관리자 화면 리렌더링
+  if (window.parent && window.parent.renderAdmin) {
+    window.parent.renderAdmin();
+  }
+
+  showAlert('🎉', '예약 신청 완료!', \`접수번호: <b style="color:#168b43">\${no}</b><br>접수일시: \${createdAt}<br>예정일: \${selectedDate}<br>신청상태: <b>\${initialStatus}</b>\`, resetForm); 
 }
 
 async function lookup(){ 
@@ -401,18 +443,24 @@ async function lookup(){
   document.getElementById('invoiceModal').style.display = 'flex'; 
 }
 
+/* 신청 취소 시 실시간 데이터 반영 및 부모 창 리렌더링 */
 async function cancelAppByUser(appNo) { 
   const data = await apiFetch('/apps', 'GET'); 
   const apps = data.apps || []; 
-  const idx = apps.findIndex(x => x.no === appNo); 
-  if (idx !== -1 && confirm(\`접수번호 [\${appNo}] 신청을 취소하시겠습니까?\`)) { 
+  const targetApp = apps.find(x => x.no === appNo); 
+  if (targetApp && confirm(\`접수번호 [\${appNo}] 신청을 취소하시겠습니까?\`)) { 
     let currentApps = JSON.parse(localStorage.getItem(KEY) || '{"apps":[]}'); 
     let target = currentApps.apps.find(x => x.no === appNo); 
     if(target) { target.status = '취소'; target.selectedWorkerIds = []; target.workers = []; localStorage.setItem(KEY, JSON.stringify(currentApps)); } 
-    await apiFetch(\`/apps/\${idx}\`, 'PUT', { no: appNo, status: '취소', selectedWorkerIds: [], workers: [] }); 
+    await apiFetch(\`/apps/\${appNo}\`, 'PUT', { no: appNo, status: '취소', selectedWorkerIds: [], workers: [] }); 
+    
     closeInvoice(); 
-    showAlert('🗑️', '취소 완료', '정상적으로 취소되었습니다.', resetForm); 
-    if (parent && parent.renderAdmin) parent.renderAdmin(); 
+    
+    if (window.parent && window.parent.renderAdmin) {
+      window.parent.renderAdmin();
+    }
+    
+    showAlert('🗑️', '취소 완료', '정상적으로 취소 처리되었습니다.', resetForm); 
   } 
 }
 
