@@ -51,7 +51,7 @@ textarea{min-height:110px;resize:vertical}
 .calendar .head:first-child{color:#d32f2f}
 .day{cursor:pointer;background:#fff}.day.disabled{color:#999;background:#f0f0f0;cursor:not-allowed}
 .day.holiday{color:#d32f2f;background:#ffebee}.day.selected{background:#168b43!important;color:#fff!important}
-.count{font-size:13px;color:#0044cc;margin-top:6px;font-weight:800}
+.count{font-size:14px;color:#0044cc;margin-top:6px;font-weight:800}
 .selected .count{color:#fff!important}.disabled .count{color:#888}
 
 /* 근로자 선택 그리드 */
@@ -69,9 +69,9 @@ textarea{min-height:110px;resize:vertical}
 /* 버튼 스타일 (크기 극대화 및 신청하기 버튼 강조) */
 .actions{display:flex;gap:12px;width:100%}
 .primary,.secondary{border:0;border-radius:12px;padding:20px;cursor:pointer;font-weight:900;text-align:center;font-size:22px;letter-spacing:-0.5px}
-.primary{background:#168b43;color:#fff;flex:2.5;box-shadow:0 4px 10px rgba(22,139,67,0.3)} /* 신청하기 강조 (비율 2.5) */
+.primary{background:#168b43;color:#fff;flex:2.5;box-shadow:0 4px 10px rgba(22,139,67,0.3)}
 .primary:hover{background:#127036}
-.secondary{background:#444;color:#fff;flex:1} /* 신청조회 및 취소 */
+.secondary{background:#444;color:#fff;flex:1}
 .secondary:hover{background:#222}
 
 /* 미니 버튼 (달력 이동 등) */
@@ -91,7 +91,7 @@ textarea{min-height:110px;resize:vertical}
   main{padding:16px 10px}.title{font-size:26px}
   .row{grid-template-columns:1fr}.worker-grid{grid-template-columns:1fr}
   .calendar div{min-height:56px;padding:4px;font-size:14px}
-  .actions{flex-direction:column} /* 모바일에서는 수직 배치로 클릭 편의성 극대화 */
+  .actions{flex-direction:column}
   .primary, .secondary{width:100%;padding:18px;font-size:20px}
 }
 </style>
@@ -148,7 +148,6 @@ textarea{min-height:110px;resize:vertical}
   <span style="float:right;font-size:24px;font-weight:900;color:#0044cc;" id="price">₩120,000</span>
 </div>
 
-<!-- 큰 폭의 신청하기 버튼 강조 배치 -->
 <div class="actions">
   <button class="primary" onclick="submitApplication()">신청하기</button>
   <button class="secondary" onclick="lookup()">신청조회 및 취소</button>
@@ -324,7 +323,8 @@ async function renderCalendar(){
     } else {
       let used = apps.filter(a => a.date === dt && a.status !== '취소').reduce((n, a) => n + Number(a.qty), 0);
       let count = Math.max(0, workers.length - used);
-      s += `<div class="day ${dt === selectedDate ? 'selected' : ''}" onclick="pickDate('${dt}')"><b style="font-size:18px">${d}</b><div class="count">${count}/${workers.length}명 가능</div></div>`;
+      /* "명 가능" 텍스트를 제거하고 숫자 비율만 깔끔하게 표시 */
+      s += `<div class="day ${dt === selectedDate ? 'selected' : ''}" onclick="pickDate('${dt}')"><b style="font-size:18px">${d}</b><div class="count">${count}/${workers.length}</div></div>`;
     }
   }
   document.getElementById('calendar').innerHTML = s;
