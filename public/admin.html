@@ -46,7 +46,6 @@ label{display:block;font-weight:700;margin:0 0 8px}.field{margin-bottom:17px} in
 .badge.new-user { background:#e3f2fd; color:#0d6efd; font-weight:bold; }
 .badge.old-user { background:#fff3cd; color:#8a6500; font-weight:bold; }
 
-/* 드래그 가능한 모달창 스타일 지정 */
 #userPageModal { background: rgba(0,0,0,0.2); pointer-events: none; }
 #userPageContainer {
   pointer-events: auto;
@@ -144,11 +143,10 @@ label{display:block;font-weight:700;margin:0 0 8px}.field{margin-bottom:17px} in
   </div>
 </div>
 
-<!-- 드래그 가능한 신청자 페이지 팝업 -->
 <div id="userPageModal" class="modal">
   <div id="userPageContainer">
     <div id="userPageHeader" style="padding:15px 20px;background:#168b43;color:#fff;display:flex;justify-content:space-between;align-items:center;cursor:move;user-select:none;">
-      <h3 style="margin:0;font-size:16px;">📱 신청자 화면 미리보기 (여기 상단을 드래그하여 이동)</h3>
+      <h3 style="margin:0;font-size:16px;">📱 신청자 화면 미리보기 (상단 드래그하여 이동)</h3>
       <button class="mini" onclick="closeUserViewModal()" style="background:#fff;color:#333;">닫기 ✕</button>
     </div>
     <iframe id="userPageIframe" style="width:100%;height:100%;border:none;"></iframe>
@@ -186,9 +184,15 @@ window.addEventListener('DOMContentLoaded', () => {
     renderAdmin();
   }
   makeModalDraggable(document.getElementById("userPageContainer"), document.getElementById("userPageHeader"));
+
+  // iframe 메시지 연동 이벤트 수신
+  window.addEventListener("message", function(e) {
+    if (e.data && e.data.type === "APP_SUBMITTED") {
+      renderAdmin();
+    }
+  });
 });
 
-/* 마우스 드래그 기능 구현 */
 function makeModalDraggable(elmnt, headerElmnt) {
   let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
   if (headerElmnt) {
@@ -223,7 +227,6 @@ function makeModalDraggable(elmnt, headerElmnt) {
   }
 }
 
-/* 신청자 화면 팝업 연동 생성 함수 */
 function openUserViewModal() {
   const container = document.getElementById('userPageContainer');
   container.style.top = '5vh';
@@ -361,7 +364,7 @@ async function submitApplication(){
   let farmerName = document.getElementById('farmerName').value.trim(), phone = document.getElementById('phone').value.trim(), address = document.getElementById('address').value.trim(), work = document.getElementById('work').value.trim(); 
   if(!farmerName || !phone || !address || !work){ showAlert('⚠️', '입력 확인', '모든 항목을 입력해주세요.'); return; } 
   const no = 'REC-2026-' + String(Math.floor(100 + Math.random() * 900)); 
-  const createdAt = new Date().toLocaleString('ko-KR'); // 접수 일시 저장
+  const createdAt = new Date().toLocaleString('ko-KR');
   const selectedWorkerNames = selectedWorkers.map(id => { let w = workers.find(x => x.id === id); return w ? (w.callName ? \`[\${w.callName}] \${w.name}\` : w.name) : ''; }); 
   const payload = { no, date: selectedDate, createdAt, farmerName, phone, address, work, gender: document.querySelector('input[name="gender"]:checked')?.value || '무관', selectedWorkerIds: selectedWorkers, workers: selectedWorkerNames, qty, etc: document.getElementById('etc').value, status: '접수대기', baseHours: 10, overtimeHours: 0, totalPrice: qty * BASE_DAILY_PRICE }; 
   
@@ -371,7 +374,9 @@ async function submitApplication(){
   await apiFetch('/apps', 'POST', payload); 
   
   showAlert('🎉', '신청 완료!', \`접수번호: <b style="color:#168b43">\${no}</b><br>접수일시: \${createdAt}<br>예정일: \${selectedDate}\`, resetForm); 
-  if (parent && parent.renderAdmin) parent.renderAdmin(); 
+  
+  // 부모 창으로 완료 이벤트 전달
+  window.parent.postMessage({ type: "APP_SUBMITTED" }, "*");
 }
 
 async function lookup(){ 
@@ -412,7 +417,7 @@ async function cancelAppByUser(appNo) {
     await apiFetch(\`/apps/\${idx}\`, 'PUT', { no: appNo, status: '취소', selectedWorkerIds: [], workers: [] }); 
     closeInvoice(); 
     showAlert('🗑️', '취소 완료', '정상적으로 취소되었습니다.', resetForm); 
-    if (parent && parent.renderAdmin) parent.renderAdmin(); 
+    window.parent.postMessage({ type: "APP_SUBMITTED" }, "*");
   } 
 }
 
@@ -1032,7 +1037,7 @@ function handleExcelUpload(e) {
   reader.readAsArrayBuffer(file);
 }
 
-function createSampleData() {
+async function createSampleData() {
   const now = new Date();
   const nextMonthObj = new Date(now.getFullYear(), now.getMonth() + 1, 10);
   const nextMonthObj2 = new Date(now.getFullYear(), now.getMonth() + 1, 15);
@@ -1045,16 +1050,21 @@ function createSampleData() {
     return `${y}-${m}-${day}`;
   };
 
-  const sampleApps = {
-    apps: [
-      { no: 'REC-2026-001', createdAt: '2026. 8. 28. 오후 1:00:00', date: formatDate(nextMonthObj), farmerName: '김포천', phone: '010-1111-2222', address: '경기도 포천시 영중면 성동리', work: '사과 수확 및 과수원 정리', qty: 2, status: '배정완료', selectedWorkerIds: ['W001', 'W002'], overtimeHours: 2, totalPrice: (2 * BASE_DAILY_PRICE) + (2 * 2 * OVERTIME_HOURLY_WAGE) },
-      { no: 'REC-2026-002', createdAt: '2026. 8. 28. 오후 1:05:00', date: formatDate(nextMonthObj2), farmerName: '이오성', phone: '010-3333-4444', address: '경기도 포천시 이동면 장암리', work: '고추밭 비닐 고르기', qty: 3, status: '접수대기', selectedWorkerIds: [], overtimeHours: 0, totalPrice: 0 },
-      { no: 'REC-2026-003', createdAt: '2026. 8. 28. 오후 1:10:00', date: formatDate(nextMonthObj3), farmerName: '김포천', phone: '010-1111-2222', address: '경기도 포천시 영중면 성동리', work: '인삼밭 차광막 설치', qty: 2, status: '배정완료', selectedWorkerIds: ['W001', 'W004'], overtimeHours: 0, totalPrice: 2 * BASE_DAILY_PRICE }
-    ]
-  };
-  localStorage.setItem(KEY, JSON.stringify(sampleApps));
+  const samples = [
+    { no: 'REC-2026-001', createdAt: '2026. 8. 28. 오후 1:00:00', date: formatDate(nextMonthObj), farmerName: '김포천', phone: '010-1111-2222', address: '경기도 포천시 영중면 성동리', work: '사과 수확 및 과수원 정리', qty: 2, status: '배정완료', selectedWorkerIds: ['W001', 'W002'], overtimeHours: 2, totalPrice: (2 * BASE_DAILY_PRICE) + (2 * 2 * OVERTIME_HOURLY_WAGE) },
+    { no: 'REC-2026-002', createdAt: '2026. 8. 28. 오후 1:05:00', date: formatDate(nextMonthObj2), farmerName: '이오성', phone: '010-3333-4444', address: '경기도 포천시 이동면 장암리', work: '고추밭 비닐 고르기', qty: 3, status: '접수대기', selectedWorkerIds: [], overtimeHours: 0, totalPrice: 0 },
+    { no: 'REC-2026-003', createdAt: '2026. 8. 28. 오후 1:10:00', date: formatDate(nextMonthObj3), farmerName: '김포천', phone: '010-1111-2222', address: '경기도 포천시 영중면 성동리', work: '인삼밭 차광막 설치', qty: 2, status: '배정완료', selectedWorkerIds: ['W001', 'W004'], overtimeHours: 0, totalPrice: 2 * BASE_DAILY_PRICE }
+  ];
+
+  localStorage.setItem(KEY, JSON.stringify({ apps: samples }));
+  try {
+    for (const item of samples) {
+      await _supabase.from('apps').insert([item]);
+    }
+  } catch(e) {}
+
   renderAdmin();
-  alert('샘플 데이터가 생성되었습니다.');
+  alert('샘플 데이터가 성공적으로 생성되었습니다.');
 }
 
 async function editHours(i){
@@ -1070,12 +1080,17 @@ async function editHours(i){
       currentApps.apps[i].totalPrice = (count * BASE_DAILY_PRICE) + (count * overH * OVERTIME_HOURLY_WAGE);
       localStorage.setItem(KEY, JSON.stringify(currentApps));
     }
+    await apiFetch(`/apps/${i}`, 'PUT', apps[i]);
     renderAdmin();
   }
 }
 
 async function cancelAppByAdmin(i) {
   if (confirm('정말 취소하시겠습니까?')) { 
+    const data = await apiFetch('/apps', 'GET');
+    const apps = data.apps || [];
+    const target = apps[i];
+    
     let currentApps = JSON.parse(localStorage.getItem(KEY) || '{"apps":[]}');
     if (currentApps.apps && currentApps.apps[i]) {
       currentApps.apps[i].status = '취소';
@@ -1083,12 +1098,27 @@ async function cancelAppByAdmin(i) {
       currentApps.apps[i].totalPrice = 0;
       localStorage.setItem(KEY, JSON.stringify(currentApps));
     }
+    if (target) {
+      await apiFetch(`/apps/${i}`, 'PUT', { ...target, status: '취소', selectedWorkerIds: [], totalPrice: 0 });
+    }
     renderAdmin(); 
   }
 }
 
 function closeInvoice(){ document.getElementById('invoiceModal').style.display = 'none'; }
-function clearData(){ if(confirm('정말 전체 데이터를 초기화하시겠습니까?')){ localStorage.clear(); location.reload(); } }
+
+async function clearData(){ 
+  if(confirm('정말 전체 데이터를 초기화하시겠습니까? (DB 및 저장소의 모든 신청 데이터가 삭제됩니다.)')){ 
+    localStorage.removeItem(KEY);
+    try {
+      await _supabase.from('apps').delete().neq('no', 'CLEAR_ALL');
+    } catch(e) {
+      console.error('Supabase Clear Error:', e);
+    }
+    alert('모든 신청 내역이 초기화되었습니다.');
+    renderAdmin(); 
+  } 
+}
 </script>
 </body>
 </html>
