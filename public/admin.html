@@ -425,15 +425,45 @@ async function renderAdmin() {
 
       let createdAtStr = a.createdAt || a.created_at || '-';
       if (createdAtStr !== '-') {
-        const dateObj = new Date(createdAtStr);
+        let dateObj = new Date(createdAtStr);
+        if (isNaN(dateObj.getTime())) {
+          // 만약 'YYYY-MM-DD HH:mm' 형태인 경우 파싱 보정
+          dateObj = new Date(createdAtStr.replace(' ', 'T'));
+        }
+        
         if (!isNaN(dateObj.getTime())) {
-          dateObj.setHours(dateObj.getHours() + 9);
-          const yyyy = dateObj.getFullYear();
-          const mm = String(dateObj.getMonth() + 1).padStart(2, '0');
-          const dd = String(dateObj.getDate()).padStart(2, '0');
-          const hh = String(dateObj.getHours()).padStart(2, '0');
-          const min = String(dateObj.getMinutes()).padStart(2, '0');
-          createdAtStr = `${yyyy}-${mm}-${dd} ${hh}:${min}`;
+          // 이미 타임존이 포함되어 로컬로 변환된 값이 아닐 경우 대비해 UTC 기준 판별 후 +9시간 또는 강제 변환
+          // Supabase timestamp with time zone은 기본적으로 UTC ISO 문자열로 넘어오므로 브라우저가 로컬로 바꿀 때 꼬일 수 있음
+          // 안전하게 연/월/일/시/분 추출 (Z가 붙어있거나 하이브리드인 경우 처리)
+          const utcMs = dateObj.getTime();
+          // 만약 DB 문자열에 'Z'나 '+'가 포함되지 않았다면 순수 UTC로 간주하여 9시간 더함
+          if (!createdAtStr.includes('Z') && !createdAtStr.includes('+') && !createdAtStr.includes('T')) {
+            dateObj.setTime(utcMs + (9 * 60 * 60 * 1000));
+          } else {
+            // ISO 형식이면 브라우저가 이미 로컬 타임존으로 바꿨을 수 있으므로 그대로 표기하거나 확인
+            // 혹은 확실하게 KST(+9)로 고정 변환하기 위해 getUTCHours() 활용
+            const kstYear = dateObj.getUTCFullYear();
+            const kstMonth = String(dateObj.getUTCMonth() + 1).padStart(2, '0');
+            const kstDate = String(dateObj.getUTCDate()).padStart(2, '0');
+            let kstHour = dateObj.getUTCHours() + 9;
+            let kstDayOffset = 0;
+            if (kstHour >= 24) {
+              kstHour -= 24;
+              // 날짜 하루 증가 처리 필요시 추가 가능
+            }
+            const kstMin = String(dateObj.getUTCMinutes()).padStart(2, '0');
+            
+            // 임시로 명확하게 연-월-일 시:분 조합
+            const tempDate = new Date(dateObj.getTime());
+            tempDate.setHours(tempDate.getHours() + 9);
+            
+            const yyyy = tempDate.getFullYear();
+            const mm = String(tempDate.getMonth() + 1).padStart(2, '0');
+            const dd = String(tempDate.getDate()).padStart(2, '0');
+            const hh = String(tempDate.getHours()).padStart(2, '0');
+            const min = String(tempDate.getMinutes()).padStart(2, '0');
+            createdAtStr = `${yyyy}-${mm}-${dd} ${hh}:${min}`;
+          }
         } else if (createdAtStr.length > 16) {
           createdAtStr = createdAtStr.substring(0, 16).replace('T', ' ');
         }
