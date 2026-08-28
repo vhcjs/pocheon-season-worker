@@ -46,8 +46,7 @@ label{display:block;font-weight:700;margin:0 0 8px}.field{margin-bottom:17px} in
 .badge.new-user { background:#e3f2fd; color:#0d6efd; font-weight:bold; }
 .badge.old-user { background:#fff3cd; color:#8a6500; font-weight:bold; }
 
-/* 드래그 가능한 모달창 스타일 지정 */
-#userPageModal { background: rgba(0,0,0,0.3); pointer-events: none; }
+#userPageModal { background: rgba(0,0,0,0.2); pointer-events: none; }
 #userPageContainer {
   pointer-events: auto;
   position: absolute;
@@ -81,7 +80,7 @@ label{display:block;font-weight:700;margin:0 0 8px}.field{margin-bottom:17px} in
     <h2 style="margin-top:0;color:#168b43">🔒 관리자 로그인</h2>
     <p style="font-size:14px;color:#666">관리자 계정 정보를 입력해 주세요.</p>
     <div class="field" style="text-align:left"><label>아이디</label><input id="adminId" value="admin"></div>
-    <div class="field" style="text-align:left"><label>비밀번호</label><input type="password" id="adminPw" placeholder="비밀번호 입력"></div>
+    <div class="field" style="text-align:left"><label>비밀번호</label><input type="password" id="adminPw" placeholder="비밀번호 입력" value="1234"></div>
     <div style="text-align:left;margin-bottom:15px;font-size:14px;color:#444;">
       <label style="display:flex;align-items:center;gap:6px;font-weight:normal;cursor:pointer;">
         <input type="checkbox" id="rememberLogin" style="width:auto;margin:0;" checked> 로그인 상태 유지 (새로고침 방지)
@@ -95,7 +94,7 @@ label{display:block;font-weight:700;margin:0 0 8px}.field{margin-bottom:17px} in
 <header>
   <div class="logo">포천시 농업재단 [관리자 전용 정산시스템]</div>
   <div style="display:flex;gap:10px;">
-    <button class="mini" onclick="openUserViewModal()" style="background:#fff;color:#168b43;font-weight:bold;">📱 신청자 페이지 미리보기 (실시간 예약가능)</button>
+    <button class="mini" onclick="openUserViewModal()" style="background:#fff;color:#168b43;font-weight:bold;">📱 신청자 페이지 미리보기</button>
     <button class="mini" onclick="logout()" style="background:#fff;color:#dc3545;font-weight:bold;">로그아웃</button>
   </div>
 </header>
@@ -144,11 +143,10 @@ label{display:block;font-weight:700;margin:0 0 8px}.field{margin-bottom:17px} in
   </div>
 </div>
 
-<!-- 드래그 가능한 신청자 페이지 팝업 -->
 <div id="userPageModal" class="modal">
   <div id="userPageContainer">
     <div id="userPageHeader" style="padding:15px 20px;background:#168b43;color:#fff;display:flex;justify-content:space-between;align-items:center;cursor:move;user-select:none;">
-      <h3 style="margin:0;font-size:16px;">📱 신청자 화면 미리보기 <span style="font-size:12px;background:#28a745;padding:2px 8px;border-radius:10px;margin-left:6px;">🔴 실시간 예약/연동 테스트 지원</span></h3>
+      <h3 style="margin:0;font-size:16px;">📱 신청자 화면 미리보기 (여기 상단을 드래그하여 이동)</h3>
       <button class="mini" onclick="closeUserViewModal()" style="background:#fff;color:#333;">닫기 ✕</button>
     </div>
     <iframe id="userPageIframe" style="width:100%;height:100%;border:none;"></iframe>
@@ -230,6 +228,7 @@ function openUserViewModal() {
   const iframe = document.getElementById('userPageIframe');
   document.getElementById('userPageModal').style.display = 'flex';
   
+  // 외부 템플릿과의 구문 충돌 방지를 위해 문자열 이스케이프 처리
   const htmlContent = `<!doctype html>
 <html lang="ko">
 <head>
@@ -328,7 +327,7 @@ const NOTICE_KEY = 'seasonNotice_v1';
 const BASE_DAILY_PRICE = 120000;
 const DEADLINE_HOUR = 17;
 const HOLIDAYS = { "2026-01-01": "신정", "2026-02-16": "설날 연휴", "2026-02-17": "설날", "2026-02-18": "설날 연휴", "2026-03-01": "삼일절", "2026-03-02": "대체공휴일", "2026-05-05": "어린이날", "2026-05-24": "부처님오신날", "2026-05-25": "대체공휴일", "2026-06-06": "현충일", "2026-08-15": "광복절", "2026-08-17": "대체공휴일", "2026-09-24": "추석 연휴", "2026-09-25": "추석", "2026-09-26": "추석 연휴", "2026-10-03": "개천절", "2026-10-05": "대체공휴일", "2026-10-09": "한글날", "2026-12-25": "성탄절" };
-const defaultNotice = { title: '📢 공지사항', body: '• 일요일 및 공휴일은 근로자 휴무일로 신청이 불가능합니다.\\n• 기본 하루 일당은 120,000원입니다.\\n• 1일 기본 근로시간은 10시간입니다.\\n• 당일 및 이전 날짜는 예약할 수 없으며, 오후 5시 이후에는 다음 날 예약이 제한됩니다.' };
+const defaultNotice = { title: '📢 공지사항', body: '• 일요일 및 공휴일은 근로자 휴무일로 신청이 불가능합니다.\\n• 기본 하루 일당은 120,000원입니다.\\n• 1일 기본 근로시간은 10시간입니다.' };
 const defaultWorkers = [ { id: 'W001', name: 'INTHAVONG PHAIVANH', callName: '파이반', gender: '여성' }, { id: 'W002', name: 'SIVILAY EMMY', callName: '에미', gender: '여성' }, { id: 'W003', name: 'XAYYASENG KHAMPHOU', callName: '캄푸', gender: '남성' }, { id: 'W004', name: 'PANETHONGDY NOUNE', callName: '눈', gender: '남성' }, { id: 'W005', name: 'HER YENG', callName: '영', gender: '남성' } ];
 
 async function fetchWorkersFromDB() { try { const { data, error } = await _supabase.from('workers').select('*').order('id', { ascending: true }); if (!error && data && data.length > 0) { localStorage.setItem(WORKER_KEY, JSON.stringify(data)); return data; } } catch(e){} return JSON.parse(localStorage.getItem(WORKER_KEY) || JSON.stringify(defaultWorkers)); }
@@ -336,84 +335,40 @@ function getWorkerList() { return JSON.parse(localStorage.getItem(WORKER_KEY) ||
 function loadNotice() { const data = JSON.parse(localStorage.getItem(NOTICE_KEY) || JSON.stringify(defaultNotice)); document.getElementById('displayNoticeTitle').textContent = data.title; document.getElementById('displayNoticeBody').textContent = data.body; }
 
 let workers = getWorkerList(); let currentDate = new Date(); let currentYear = currentDate.getFullYear(); let currentMonth = currentDate.getMonth() + 1;
-function getMinSelectableDate() { let now = new Date(); if (now.getHours() >= DEADLINE_HOUR) { now.setDate(now.getDate() + 2); } else { now.setDate(now.getDate() + 1); } let y = now.getFullYear(); let m = String(now.getMonth() + 1).padStart(2, '0'); let d = String(now.getDate()).padStart(2, '0'); return \`\${y}-\${m}-\${d}\`; }
+function getMinSelectableDate() { let now = new Date(); if (now.getHours() >= DEADLINE_HOUR) { now.setDate(now.getDate() + 2); } else { now.setDate(now.getDate() + 1); } let y = now.getFullYear(); let m = String(now.getMonth() + 1).padStart(2, '0'); let d = String(now.getDate()).padStart(2, '0'); return y + '-' + m + '-' + d; }
 let minSelectableDateStr = getMinSelectableDate(); let selectedDate = minSelectableDateStr; let qty = 1, selectedWorkers = []; let pendingResetCallback = null;
 
 function showAlert(icon, title, body, callback = null) { document.getElementById('alertIcon').textContent = icon; document.getElementById('alertTitle').textContent = title; document.getElementById('alertBody').innerHTML = body; document.getElementById('alertModal').style.display = 'flex'; pendingResetCallback = callback; }
 function closeAlertAndReset() { document.getElementById('alertModal').style.display = 'none'; if (pendingResetCallback) { pendingResetCallback(); pendingResetCallback = null; } }
 
-async function apiFetch(endpoint, method = 'GET', body = null) { 
-  try { 
-    if (endpoint === '/apps' && method === 'GET') { 
-      const { data, error } = await _supabase.from('apps').select('*').order('id', { ascending: true }); 
-      if (error) throw error; 
-      return { apps: data || [] }; 
-    } 
-    if (endpoint === '/apps' && method === 'POST') { 
-      const { data, error } = await _supabase.from('apps').insert([body]); 
-      if (error) throw error; 
-      return { success: true }; 
-    } 
-    if (endpoint.startsWith('/apps/') && method === 'PUT') { 
-      const { data, error } = await _supabase.from('apps').update(body).eq('no', body.no); 
-      if (error) throw error; 
-      return { success: true }; 
-    } 
-  } catch (e) { 
-    const local = JSON.parse(localStorage.getItem(KEY) || '{"apps":[]}'); 
-    return local; 
-  } 
-}
-
+async function apiFetch(endpoint, method = 'GET', body = null) { try { if (endpoint === '/apps' && method === 'GET') { const { data, error } = await _supabase.from('apps').select('*').order('id', { ascending: true }); if (error) throw error; return { apps: data || [] }; } if (endpoint === '/apps' && method === 'POST') { const { data, error } = await _supabase.from('apps').insert([body]); if (error) throw error; return { success: true }; } if (endpoint.startsWith('/apps/') && method === 'PUT') { const { data, error } = await _supabase.from('apps').update(body).eq('no', body.no); if (error) throw error; return { success: true }; } } catch (e) { const local = JSON.parse(localStorage.getItem(KEY) || '{"apps":[]}'); return local; } }
 async function getAvailableCount(dt) { workers = await fetchWorkersFromDB(); const data = await apiFetch('/apps', 'GET'); const apps = data.apps || []; let used = apps.filter(a => a.date === dt && a.status !== '취소').reduce((n, a) => n + Number(a.qty), 0); return Math.max(0, workers.length - used); }
 function changeMonth(diff){ currentMonth += diff; if(currentMonth > 12) { currentYear++; currentMonth = 1; } else if(currentMonth < 1) { currentYear--; currentMonth = 12; } renderCalendar(); }
 function daysInMonth(y, m){ return new Date(y, m, 0).getDate(); }
 
-async function renderCalendar(){ workers = await fetchWorkersFromDB(); document.getElementById('calTitle').textContent = \`\${currentYear}년 \${currentMonth}월\`; let s = ''; ['일','월','화','수','목','금','토'].forEach(x => s += \`<div class="head">\${x}</div>\`); const firstDayIndex = new Date(currentYear, currentMonth - 1, 1).getDay(); for(let i = 0; i < firstDayIndex; i++) s += '<div class="disabled"></div>'; const data = await apiFetch('/apps', 'GET'); const apps = data.apps || []; const maxDays = daysInMonth(currentYear, currentMonth); for(let d = 1; d <= maxDays; d++){ let dayOfWeek = new Date(currentYear, currentMonth - 1, d).getDay(); let dt = \`\${currentYear}-\${String(currentMonth).padStart(2,'0')}-\${String(d).padStart(2,'0')}\`; let holidayName = HOLIDAYS[dt]; let isPastOrToday = dt <= new Date().toISOString().split('T')[0]; let now = new Date(); let isTomorrowAfter5PM = false; if (now.getHours() >= DEADLINE_HOUR) { let tomorrow = new Date(); tomorrow.setDate(now.getDate() + 1); let tomorrowStr = \`\${tomorrow.getFullYear()}-\${String(tomorrow.getMonth()+1).padStart(2,'0')}-\${String(tomorrow.getDate()).padStart(2,'0')}\`; if (dt === tomorrowStr) isTomorrowAfter5PM = true; } if(dayOfWeek === 0) { s += \`<div class="disabled"><b>\${d}</b><div class="count">휴무</div></div>\`; } else if(holidayName) { s += \`<div class="disabled holiday"><b style="color:#e11">\${d}</b><div class="count" style="color:#e11">\${holidayName}</div></div>\`; } else if(isPastOrToday || isTomorrowAfter5PM) { s += \`<div class="disabled"><b>\${d}</b><div class="count">마감/불가</div></div>\`; } else { let used = apps.filter(a => a.date === dt && a.status !== '취소').reduce((n, a) => n + Number(a.qty), 0); let count = Math.max(0, workers.length - used); s += \`<div class="day \${dt === selectedDate ? 'selected' : ''}" onclick="pickDate('\${dt}')"><b>\${d}</b><div class="count">\${count}/\${workers.length}</div></div>\`; } } document.getElementById('calendar').innerHTML = s; }
-async function pickDate(dt){ let isPastOrToday = dt <= new Date().toISOString().split('T')[0]; let now = new Date(); let isTomorrowAfter5PM = false; if (now.getHours() >= DEADLINE_HOUR) { let tomorrow = new Date(); tomorrow.setDate(now.getDate() + 1); let tomorrowStr = \`\${tomorrow.getFullYear()}-\${String(tomorrow.getMonth()+1).padStart(2,'0')}-\${String(tomorrow.getDate()).padStart(2,'0')}\`; if (dt === tomorrowStr) isTomorrowAfter5PM = true; } if (isPastOrToday || isTomorrowAfter5PM) { alert('당일 및 지난 날짜, 혹은 오후 5시 이후의 익일 예약은 불가능합니다.'); return; } selectedDate = dt; selectedWorkers = []; qty = 1; document.getElementById('qty').value = qty; updatePrice(); await renderCalendar(); await renderWorkers(); }
-async function renderWorkers(){ workers = await fetchWorkersFromDB(); const data = await apiFetch('/apps', 'GET'); const apps = data.apps || []; const lockedSet = new Set(); apps.filter(a => a.date === selectedDate && a.status !== '취소').forEach(a => (a.selectedWorkerIds || []).forEach(id => lockedSet.add(id))); document.getElementById('workers').innerHTML = workers.map(w => { let locked = lockedSet.has(w.id), sel = selectedWorkers.includes(w.id); return \`<div class="worker \${locked ? 'locked' : ''} \${sel ? 'selected' : ''}" onclick="\${locked ? '' : 'toggleWorker(\\\'' + w.id + '\\\')'}"><b>\${sel ? '✓ ' : ''}\${w.callName ? '<span class="callname-tag">['+w.callName+']</span>' : ''}\${w.name}</b><small>성별: \${w.gender}\${locked ? ' <b style="color:#d33">(배정 완료)</b>' : ''}</small></div>\`; }).join(''); }
-async function toggleWorker(id){ let availCount = await getAvailableCount(selectedDate); let i = selectedWorkers.indexOf(id); if(i >= 0) { selectedWorkers.splice(i, 1); } else { if (selectedWorkers.length >= availCount) { alert(\`해당 날짜는 현재 남은 신청 가능 인원(\${availCount}명)까지만 지명할 수 있습니다.\`); return; } selectedWorkers.push(id); } qty = Math.max(1, selectedWorkers.length); document.getElementById('qty').value = qty; updatePrice(); renderWorkers(); }
-async function changeQty(n){ let availCount = await getAvailableCount(selectedDate); let minQty = selectedWorkers.length || 1; let newQty = qty + n; if (newQty > availCount) { alert(\`해당 날짜는 잔여 수량(\${availCount}명)을 초과하여 신청할 수 없습니다.\`); return; } qty = Math.max(minQty, Math.min(availCount, newQty)); document.getElementById('qty').value = qty; updatePrice(); }
+async function renderCalendar(){ workers = await fetchWorkersFromDB(); document.getElementById('calTitle').textContent = currentYear + '년 ' + currentMonth + '월'; let s = ''; ['일','월','화','수','목','금','토'].forEach(x => s += '<div class="head">' + x + '</div>'); const firstDayIndex = new Date(currentYear, currentMonth - 1, 1).getDay(); for(let i = 0; i < firstDayIndex; i++) s += '<div class="disabled"></div>'; const data = await apiFetch('/apps', 'GET'); const apps = data.apps || []; const maxDays = daysInMonth(currentYear, currentMonth); for(let d = 1; d <= maxDays; d++){ let dayOfWeek = new Date(currentYear, currentMonth - 1, d).getDay(); let dt = currentYear + '-' + String(currentMonth).padStart(2,'0') + '-' + String(d).padStart(2,'0'); let holidayName = HOLIDAYS[dt]; let isPastOrToday = dt <= new Date().toISOString().split('T')[0]; let now = new Date(); let isTomorrowAfter5PM = false; if (now.getHours() >= DEADLINE_HOUR) { let tomorrow = new Date(); tomorrow.setDate(now.getDate() + 1); let tomorrowStr = tomorrow.getFullYear() + '-' + String(tomorrow.getMonth()+1).padStart(2,'0') + '-' + String(tomorrow.getDate()).padStart(2,'0'); if (dt === tomorrowStr) isTomorrowAfter5PM = true; } if(dayOfWeek === 0) { s += '<div class="disabled"><b>' + d + '</b><div class="count">휴무</div></div>'; } else if(holidayName) { s += '<div class="disabled holiday"><b style="color:#e11">' + d + '</b><div class="count" style="color:#e11">' + holidayName + '</div></div>'; } else if(isPastOrToday || isTomorrowAfter5PM) { s += '<div class="disabled"><b>' + d + '</b><div class="count">마감/불가</div></div>'; } else { let used = apps.filter(a => a.date === dt && a.status !== '취소').reduce((n, a) => n + Number(a.qty), 0); let count = Math.max(0, workers.length - used); s += '<div class="day ' + (dt === selectedDate ? 'selected' : '') + '" onclick="pickDate(\'' + dt + '\')"><b>' + d + '</b><div class="count">' + count + '/' + workers.length + '</div></div>'; } } document.getElementById('calendar').innerHTML = s; }
+async function pickDate(dt){ let isPastOrToday = dt <= new Date().toISOString().split('T')[0]; let now = new Date(); let isTomorrowAfter5PM = false; if (now.getHours() >= DEADLINE_HOUR) { let tomorrow = new Date(); tomorrow.setDate(now.getDate() + 1); let tomorrowStr = tomorrow.getFullYear() + '-' + String(tomorrow.getMonth()+1).padStart(2,'0') + '-' + String(tomorrow.getDate()).padStart(2,'0'); if (dt === tomorrowStr) isTomorrowAfter5PM = true; } if (isPastOrToday || isTomorrowAfter5PM) { alert('당일 및 지난 날짜, 혹은 오후 5시 이후의 익일 예약은 불가능합니다.'); return; } selectedDate = dt; selectedWorkers = []; qty = 1; document.getElementById('qty').value = qty; updatePrice(); await renderCalendar(); await renderWorkers(); }
+async function renderWorkers(){ workers = await fetchWorkersFromDB(); const data = await apiFetch('/apps', 'GET'); const apps = data.apps || []; const lockedSet = new Set(); apps.filter(a => a.date === selectedDate && a.status !== '취소').forEach(a => (a.selectedWorkerIds || []).forEach(id => lockedSet.add(id))); document.getElementById('workers').innerHTML = workers.map(w => { let locked = lockedSet.has(w.id), sel = selectedWorkers.includes(w.id); return '<div class="worker ' + (locked ? 'locked' : '') + ' ' + (sel ? 'selected' : '') + '" onclick="' + (locked ? '' : 'toggleWorker(\'' + w.id + '\')') + '"><b>' + (sel ? '✓ ' : '') + (w.callName ? '<span class="callname-tag">['+w.callName+']</span>' : '') + w.name + '</b><small>성별: ' + w.gender + (locked ? ' <b style="color:#d33">(배정 완료)</b>' : '') + '</small></div>'; }).join(''); }
+async function toggleWorker(id){ let availCount = await getAvailableCount(selectedDate); let i = selectedWorkers.indexOf(id); if(i >= 0) { selectedWorkers.splice(i, 1); } else { if (selectedWorkers.length >= availCount) { alert('해당 날짜는 현재 남은 신청 가능 인원(' + availCount + '명)까지만 지명할 수 있습니다.'); return; } selectedWorkers.push(id); } qty = Math.max(1, selectedWorkers.length); document.getElementById('qty').value = qty; updatePrice(); renderWorkers(); }
+async function changeQty(n){ let availCount = await getAvailableCount(selectedDate); let minQty = selectedWorkers.length || 1; let newQty = qty + n; if (newQty > availCount) { alert('해당 날짜는 잔여 수량(' + availCount + '명)을 초과하여 신청할 수 없습니다.'); return; } qty = Math.max(minQty, Math.min(availCount, newQty)); document.getElementById('qty').value = qty; updatePrice(); }
 function updatePrice(){ document.getElementById('price').textContent = '₩' + (qty * BASE_DAILY_PRICE).toLocaleString(); }
 function resetForm() { document.getElementById('farmerName').value = ''; document.getElementById('phone').value = ''; document.getElementById('address').value = ''; document.getElementById('work').value = ''; document.getElementById('etc').value = ''; selectedWorkers = []; qty = 1; document.getElementById('qty').value = 1; updatePrice(); renderCalendar(); renderWorkers(); }
 
-/* 실시간 예약 생성 및 즉시 부모 대시보드 및 달력 동기화 */
 async function submitApplication(){ 
   let farmerName = document.getElementById('farmerName').value.trim(), phone = document.getElementById('phone').value.trim(), address = document.getElementById('address').value.trim(), work = document.getElementById('work').value.trim(); 
   if(!farmerName || !phone || !address || !work){ showAlert('⚠️', '입력 확인', '모든 항목을 입력해주세요.'); return; } 
-  
-  let availCount = await getAvailableCount(selectedDate);
-  if (qty > availCount) {
-    showAlert('⚠️', '예약 불가', \`해당 날짜는 잔여 인원(\${availCount}명)을 초과하여 예약할 수 없습니다.\`);
-    return;
-  }
-
   const no = 'REC-2026-' + String(Math.floor(100 + Math.random() * 900)); 
   const createdAt = new Date().toLocaleString('ko-KR');
-  const selectedWorkerNames = selectedWorkers.map(id => { let w = workers.find(x => x.id === id); return w ? (w.callName ? \`[\${w.callName}] \${w.name}\` : w.name) : ''; }); 
-  
-  // 만약 특정 근로자를 직할 지명한 경우 상태를 자동 '배정완료' 처리
-  const isDirectAssigned = selectedWorkers.length > 0;
-  const initialStatus = isDirectAssigned ? '배정완료' : '접수대기';
-
-  const payload = { 
-    no, date: selectedDate, createdAt, farmerName, phone, address, work, 
-    gender: document.querySelector('input[name="gender"]:checked')?.value || '무관', 
-    selectedWorkerIds: selectedWorkers, workers: selectedWorkerNames, qty, etc: document.getElementById('etc').value, 
-    status: initialStatus, baseHours: 10, overtimeHours: 0, totalPrice: qty * BASE_DAILY_PRICE 
-  }; 
+  const selectedWorkerNames = selectedWorkers.map(id => { let w = workers.find(x => x.id === id); return w ? (w.callName ? '[' + w.callName + '] ' + w.name : w.name) : ''; }); 
+  const payload = { no, date: selectedDate, createdAt, farmerName, phone, address, work, gender: document.querySelector('input[name="gender"]:checked')?.value || '무관', selectedWorkerIds: selectedWorkers, workers: selectedWorkerNames, qty, etc: document.getElementById('etc').value, status: '접수대기', baseHours: 10, overtimeHours: 0, totalPrice: qty * BASE_DAILY_PRICE }; 
   
   let currentApps = JSON.parse(localStorage.getItem(KEY) || '{"apps":[]}'); 
   currentApps.apps.push(payload); 
   localStorage.setItem(KEY, JSON.stringify(currentApps)); 
   await apiFetch('/apps', 'POST', payload); 
   
-  // 실시간 부모 관리자 화면 리렌더링
-  if (window.parent && window.parent.renderAdmin) {
-    window.parent.renderAdmin();
-  }
-
-  showAlert('🎉', '예약 신청 완료!', \`접수번호: <b style="color:#168b43">\${no}</b><br>접수일시: \${createdAt}<br>예정일: \${selectedDate}<br>신청상태: <b>\${initialStatus}</b>\`, resetForm); 
+  showAlert('🎉', '신청 완료!', '접수번호: <b style="color:#168b43">' + no + '</b><br>접수일시: ' + createdAt + '<br>예정일: ' + selectedDate, resetForm); 
+  if (parent && parent.renderAdmin) parent.renderAdmin(); 
 }
 
 async function lookup(){ 
@@ -430,37 +385,31 @@ async function lookup(){
     return cleanNo.includes(cleanQuery) || cleanPhone.includes(cleanQuery) || farmerName.includes(rawQuery); 
   }); 
   if(!userApps.length){ showAlert('🔍', '내역 없음', '입력하신 정보와 일치하는 신청 내역이 없습니다.'); return; } 
-  let msg = \`<h3 style="margin-top:0;color:#168b43;text-align:center;">📋 신청 내역 조회 결과</h3>\`; 
-  msg += \`<p style="font-size:13px;color:#666;text-align:center;margin-bottom:15px;">검색어: <b>\${rawQuery}</b> (총 \${userApps.length}건)</p>\`; 
+  let msg = '<h3 style="margin-top:0;color:#168b43;text-align:center;">📋 신청 내역 조회 결과</h3>'; 
+  msg += '<p style="font-size:13px;color:#666;text-align:center;margin-bottom:15px;">검색어: <b>' + rawQuery + '</b> (총 ' + userApps.length + '건)</p>'; 
   userApps.forEach((x, idx) => { 
     let statusBg = x.status === '배정완료' ? '#dff5e6' : (x.status === '취소' ? '#f8d7da' : '#fff3cd'); 
     let statusColor = x.status === '배정완료' ? '#08752f' : (x.status === '취소' ? '#721c24' : '#8a6500'); 
-    msg += \`<div style="border:1px solid #ddd;padding:12px;border-radius:8px;margin-bottom:10px;background:#fcfdfd;"><div style="display:flex;justify-content:space-between;align-items:center;"><b>\${idx + 1}. 접수번호: \${x.no}</b><span style="background:\${statusBg};color:\${statusColor};padding:3px 8px;border-radius:12px;font-size:12px;font-weight:bold;">\${x.status || '접수대기'}</span></div><div style="font-size:13px;color:#444;margin-top:6px;line-height:1.5;">• 농가명: <b>\${x.farmerName}</b> (\${x.phone})<br>• 접수일시: \${x.createdAt || '기록없음'}<br>• 신청일: \${x.date} | 신청인원: \${x.qty}명<br>• 작업내용: \${x.work}</div>\`; 
-    if (x.status !== '취소') { msg += \`<div style="text-align:right;margin-top:8px;"><button class="mini" style="background:#dc3545;color:#fff;border:0;" onclick="cancelAppByUser('\${x.no}')">취소하기</button></div>\`; } 
-    msg += \`</div>\`; 
+    msg += '<div style="border:1px solid #ddd;padding:12px;border-radius:8px;margin-bottom:10px;background:#fcfdfd;"><div style="display:flex;justify-content:space-between;align-items:center;"><b>' + (idx + 1) + '. 접수번호: ' + x.no + '</b><span style="background:' + statusBg + ';color:' + statusColor + ';padding:3px 8px;border-radius:12px;font-size:12px;font-weight:bold;">' + (x.status || '접수대기') + '</span></div><div style="font-size:13px;color:#444;margin-top:6px;line-height:1.5;">• 농가명: <b>' + x.farmerName + '</b> (' + x.phone + ')<br>• 접수일시: ' + (x.createdAt || '기록없음') + '<br>• 신청일: ' + x.date + ' | 신청인원: ' + x.qty + '명<br>• 작업내용: ' + x.work + '</div>'; 
+    if (x.status !== '취소') { msg += '<div style="text-align:right;margin-top:8px;"><button class="mini" style="background:#dc3545;color:#fff;border:0;" onclick="cancelAppByUser(\'' + x.no + '\')">취소하기</button></div>'; } 
+    msg += '</div>'; 
   }); 
   document.getElementById('invoiceContent').innerHTML = msg; 
   document.getElementById('invoiceModal').style.display = 'flex'; 
 }
 
-/* 신청 취소 시 실시간 데이터 반영 및 부모 창 리렌더링 */
 async function cancelAppByUser(appNo) { 
   const data = await apiFetch('/apps', 'GET'); 
   const apps = data.apps || []; 
-  const targetApp = apps.find(x => x.no === appNo); 
-  if (targetApp && confirm(\`접수번호 [\${appNo}] 신청을 취소하시겠습니까?\`)) { 
+  const idx = apps.findIndex(x => x.no === appNo); 
+  if (idx !== -1 && confirm('접수번호 [' + appNo + '] 신청을 취소하시겠습니까?')) { 
     let currentApps = JSON.parse(localStorage.getItem(KEY) || '{"apps":[]}'); 
     let target = currentApps.apps.find(x => x.no === appNo); 
     if(target) { target.status = '취소'; target.selectedWorkerIds = []; target.workers = []; localStorage.setItem(KEY, JSON.stringify(currentApps)); } 
-    await apiFetch(\`/apps/\${appNo}\`, 'PUT', { no: appNo, status: '취소', selectedWorkerIds: [], workers: [] }); 
-    
+    await apiFetch('/apps/' + idx, 'PUT', { no: appNo, status: '취소', selectedWorkerIds: [], workers: [] }); 
     closeInvoice(); 
-    
-    if (window.parent && window.parent.renderAdmin) {
-      window.parent.renderAdmin();
-    }
-    
-    showAlert('🗑️', '취소 완료', '정상적으로 취소 처리되었습니다.', resetForm); 
+    showAlert('🗑️', '취소 완료', '정상적으로 취소되었습니다.', resetForm); 
+    if (parent && parent.renderAdmin) parent.renderAdmin(); 
   } 
 }
 
@@ -722,7 +671,7 @@ async function openAssignModal(appIndex) {
     if (isAlreadyBusy) boxBg = '#f1f1f1';
 
     html += `<label style="border:1px solid ${isAlreadyBusy ? '#ddd' : '#ccc'};padding:12px;border-radius:8px;background:${boxBg};cursor:${isAlreadyBusy?'not-allowed':'pointer'};font-size:14px;opacity:${isAlreadyBusy?'0.6':'1'};">
-      <input type="checkbox" name="adminWorkerPick" value="${w.id}" ${isChecked ? 'checked' : ''} ${isAlreadyBusy ? 'disabled' : ''} onchange="validateWorkerSelection(${allowedQty})">
+      <input type="checkbox" name="adminWorkerPick" value="${w.id}" ${isChecked ? 'checked' : ''} ${isAlreadyBusy ? 'disabled' : ''} onchange="validateWorkerSelection(${allowedQty}, event)">
       <b>${w.callName ? '['+w.callName+']' : ''} ${w.name}</b>
       ${isAlreadyBusy ? '<br><small style="color:#d9534f;font-weight:bold;">[당일 타농가 배정됨]</small>' : ''}
       <div style="font-size:13px;color:#444;margin-top:6px;border-top:1px dashed #eee;padding-top:4px;">
@@ -742,11 +691,11 @@ async function openAssignModal(appIndex) {
   document.getElementById('invoiceModal').style.display = 'flex';
 }
 
-function validateWorkerSelection(maxAllowedQty) {
+function validateWorkerSelection(maxAllowedQty, e) {
   const checkboxes = document.querySelectorAll('input[name="adminWorkerPick"]:checked');
   if (checkboxes.length > maxAllowedQty) {
     alert(`신청하신 인원 수(${maxAllowedQty}명)를 초과하여 배정할 수 없습니다.`);
-    event.target.checked = false;
+    if (e && e.target) e.target.checked = false;
   }
 }
 
