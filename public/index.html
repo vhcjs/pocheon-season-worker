@@ -7,7 +7,6 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <style>
-/* 시인성 및 고령 사용자 접근성 극대화 스타일 조정 */
 *{box-sizing:border-box} 
 body{margin:0;font-family:Arial,"Noto Sans KR",sans-serif;background:#eef5fb;color:#000;font-size:18px;}
 button,input,textarea,select{font:inherit} 
@@ -65,7 +64,33 @@ textarea{min-height:110px;resize:vertical}
 .primary{background:#0b632c;color:#fff}.primary:hover{background:#084d22}
 .secondary{background:#e2e8f0;color:#111;border:1px solid #cbd5e1}.secondary:hover{background:#cbd5e1}
 
-.status{padding:16px;border-radius:10px;background:#e0f2fe;border:2px solid #bae6fd;margin:16px 0;font-size:19px}
+/* 모바일 정렬 수정을 위한 Flexbox 스타일 개선 */
+.status{
+  padding:18px 20px;
+  border-radius:12px;
+  background:#e0f2fe;
+  border:2px solid #bae6fd;
+  margin:20px 0;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:12px;
+  flex-wrap:wrap;
+}
+.status .status-label{
+  font-size:18px;
+  font-weight:800;
+  color:#111;
+  word-break:keep-all;
+}
+.status .status-price{
+  font-size:26px;
+  font-weight:900;
+  color:#0b632c;
+  white-space:nowrap;
+  margin-left:auto;
+}
+
 .mini{padding:10px 16px;border:2px solid #888;background:#fff;border-radius:8px;cursor:pointer;font-weight:800;font-size:16px;white-space:nowrap;display:inline-flex;align-items:center;justify-content:center}
 
 .modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);align-items:center;justify-content:center;z-index:9999}
@@ -83,6 +108,17 @@ textarea{min-height:110px;resize:vertical}
   .row{grid-template-columns:1fr}.worker-grid{grid-template-columns:1fr}
   .calendar div{min-height:56px;padding:4px;font-size:14px}
   .card{padding:16px}
+  
+  /* 소형 모바일 전용 수평 정렬 스타일 조율 */
+  .status{
+    padding:14px 16px;
+  }
+  .status .status-label{
+    font-size:16px;
+  }
+  .status .status-price{
+    font-size:22px;
+  }
 }
 </style>
 </head>
@@ -125,7 +161,13 @@ textarea{min-height:110px;resize:vertical}
 
 <div class="field"><label>신청 인원</label><div class="actions"><button class="secondary" style="width:60px;" onclick="changeQty(-1)">−</button><input id="qty" value="1" readonly style="text-align:center;font-weight:900;font-size:22px;"><button class="secondary" style="width:60px;" onclick="changeQty(1)">+</button></div></div>
 <div class="field"><label>기타 요청사항</label><textarea id="etc" placeholder="기타 요청사항을 작성해주세요"></textarea></div>
-<div class="status"><b>예상 신청금액 (1일 기본일당 기준)</b> <span style="float:right;font-size:24px;font-weight:900;color:#0b632c" id="price">₩120,000</span></div>
+
+<!-- 줄 맞춤이 적용된 예상 신청금액 영역 -->
+<div class="status">
+  <span class="status-label">예상 신청금액 (1일 기준)</span>
+  <span class="status-price" id="price">₩120,000</span>
+</div>
+
 <div class="actions"><button class="primary" onclick="submitApplication()">신청하기</button><button class="secondary" onclick="lookup()">신청조회 및 취소</button></div>
 </div>
 </div></main>
@@ -473,7 +515,6 @@ async function cancelAppByUser(appNo) {
 
 function closeInvoice(){ document.getElementById('invoiceModal').style.display = 'none'; }
 
-// Supabase Realtime 구독 기능 (데이터 변경 시 자동 새로고침)
 function setupRealtimeSubscription() {
   _supabase
     .channel('public:realtime_changes')
@@ -494,7 +535,7 @@ async function initApp() {
   await renderCalendar();
   await renderWorkers();
   updatePrice();
-  setupRealtimeSubscription(); // 실시간 수신 시작
+  setupRealtimeSubscription();
 }
 initApp();
 </script>
