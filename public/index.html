@@ -29,34 +29,35 @@ main{padding:30px 20px}
 
 /* 폼 요소 및 레이블 확대 */
 label{display:block;font-weight:800;margin:0 0 10px;font-size:20px;color:#000}
-.field{margin-bottom:28px} 
+.field{margin-bottom:28px;clear:both} 
 input,textarea,select{width:100%;padding:16px;border:2px solid #767676;border-radius:10px;background:#fff;font-size:19px;color:#000;font-weight:500} 
 input:focus,textarea:focus,select:focus{outline:3px solid #005a2b;border-color:#005a2b}
 textarea{min-height:120px;resize:vertical}
 .row{display:grid;grid-template-columns:1fr 1fr;gap:20px}
 .hint{font-size:16px;color:#555;margin-top:8px;font-weight:600}
 
-/* 라디오 버튼 그룹 정렬 개선 */
+/* 라디오 버튼 독립 배치 및 줄바꿈 차단 */
 .radio-group {
   display: flex;
-  flex-wrap: wrap;
-  gap: 16px;
+  flex-direction: row;
   align-items: center;
-  margin-top: 6px;
+  gap: 20px;
+  margin-top: 8px;
 }
-.radio-group label {
-  display: inline-flex;
+.radio-label {
+  display: inline-flex !important;
   align-items: center;
   font-weight: 700;
   font-size: 20px;
-  margin: 0;
+  color: #000;
+  margin: 0 !important;
   cursor: pointer;
   white-space: nowrap;
 }
-.radio-group input {
+.radio-label input[type="radio"] {
   width: 24px;
   height: 24px;
-  margin-right: 8px;
+  margin: 0 8px 0 0;
   cursor: pointer;
 }
 
@@ -90,11 +91,29 @@ textarea{min-height:120px;resize:vertical}
 .primary{background:#007a33;color:#fff;font-size:26px;padding:24px 32px;flex:2;min-height:75px}.primary:hover{background:#005a2b}
 .secondary{background:#4a5568;color:#fff;font-size:22px;padding:22px 28px;flex:1;min-height:75px}.secondary:hover{background:#2d3748}
 
-.status{padding:20px;border-radius:12px;background:#eef4fc;border:2px solid #b8daff;margin:24px 0;font-size:22px;color:#000}
+/* 금액 디스플레이 박스 고정 정렬 */
+.status{
+  padding:20px;
+  border-radius:12px;
+  background:#eef4fc;
+  border:2px solid #b8daff;
+  margin:24px 0;
+  font-size:22px;
+  color:#000;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+.status-price{
+  font-size:28px;
+  font-weight:900;
+  color:#005a2b;
+}
+
 .mini{padding:12px 20px;border:2px solid #555;background:#fff;border-radius:8px;cursor:pointer;font-weight:800;font-size:18px;white-space:nowrap;display:inline-flex;align-items:center;justify-content:center;line-height:1.2;margin:2px 0}
 
 /* 수량 조절 전용 버튼 스타일 */
-.qty-btn{background:#e2e8f0;color:#1a202c;font-size:28px;font-weight:900;width:80px;height:60px;border:2px solid #cbd5e0;border-radius:10px;cursor:pointer}
+.qty-btn{background:#e2e8f0;color:#1a202c;font-size:28px;font-weight:900;width:80px;height:60px;border:2px solid #cbd5e0;border-radius:10px;cursor:pointer;flex-shrink:0}
 .qty-btn:hover{background:#cbd5e0}
 
 /* 모달창 시인성 극대화 */
@@ -106,7 +125,7 @@ textarea{min-height:120px;resize:vertical}
 .alert-body{font-size:20px;color:#222;line-height:1.6;margin-bottom:28px;font-weight:500}
 .callname-tag{display:inline-block;background:#c8e6c9;color:#004d20;font-weight:900;padding:4px 8px;border-radius:6px;border:1px solid #81c784;font-size:16px;margin-right:6px}
 
-/* 모바일 모드 가독성 강화 */
+/* 모바일 모드 가독성 및 틀어짐 방지 */
 @media(max-width:650px){
   header{padding:0 16px;height:70px}.logo{font-size:18px}#clock{font-size:14px}
   main{padding:16px 10px}.title{font-size:26px}.row{grid-template-columns:1fr}
@@ -120,9 +139,17 @@ textarea{min-height:120px;resize:vertical}
   .primary{font-size:22px;padding:18px;width:100%;min-height:65px}
   .secondary{font-size:18px;padding:16px;width:100%;min-height:60px}
   
-  /* 모바일에서 라디오 버튼 수평 정렬 간격 최적화 */
-  .radio-group { gap: 12px; }
-  .radio-group label { font-size: 18px; }
+  .radio-group { gap: 14px; }
+  .radio-label { font-size: 18px; }
+  
+  .status {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  .status-price {
+    align-self: flex-end;
+  }
 }
 </style>
 </head>
@@ -159,18 +186,31 @@ textarea{min-height:120px;resize:vertical}
 <div class="field">
   <label>선호 성별</label>
   <div class="radio-group">
-    <label><input type="radio" name="gender" value="남성"> 남성</label>
-    <label><input type="radio" name="gender" value="여성"> 여성</label>
-    <label><input type="radio" name="gender" value="무관" checked> 무관</label>
+    <label class="radio-label"><input type="radio" name="gender" value="남성"> 남성</label>
+    <label class="radio-label"><input type="radio" name="gender" value="여성"> 여성</label>
+    <label class="radio-label"><input type="radio" name="gender" value="무관" checked> 무관</label>
   </div>
 </div>
 
 <div class="field"><label>선호 근로자 <span class="hint">(이미 배정된 근로자는 선택할 수 없습니다.)</span></label>
 <div id="workers" class="worker-grid"></div></div>
 
-<div class="field"><label>신청 인원</label><div style="display:flex;gap:10px;align-items:center;"><button class="qty-btn" onclick="changeQty(-1)">−</button><input id="qty" value="1" readonly style="text-align:center;font-size:26px;font-weight:900;height:60px;"><button class="qty-btn" onclick="changeQty(1)">+</button></div></div>
+<div class="field">
+  <label>신청 인원</label>
+  <div style="display:flex;gap:10px;align-items:center;">
+    <button class="qty-btn" onclick="changeQty(-1)">−</button>
+    <input id="qty" value="1" readonly style="text-align:center;font-size:26px;font-weight:900;height:60px;">
+    <button class="qty-btn" onclick="changeQty(1)">+</button>
+  </div>
+</div>
+
 <div class="field"><label>기타 요청사항</label><textarea id="etc" placeholder="기타 요청사항을 작성해주세요"></textarea></div>
-<div class="status"><b>예상 신청금액 (1일 기본일당 기준)</b> <span style="float:right;font-size:28px;font-weight:900;color:#005a2b" id="price">₩120,000</span></div>
+
+<div class="status">
+  <b>예상 신청금액 (1일 기본일당 기준)</b>
+  <span class="status-price" id="price">₩120,000</span>
+</div>
+
 <div class="actions">
   <button class="primary" onclick="submitApplication()">신청하기</button>
   <button class="secondary" onclick="lookup()">신청조회 및 취소</button>
