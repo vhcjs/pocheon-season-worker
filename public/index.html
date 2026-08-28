@@ -39,9 +39,34 @@ textarea{min-height:110px;resize:vertical}
 .row{display:grid;grid-template-columns:1fr 1fr;gap:18px}
 .hint{font-size:15px;color:#444;margin-top:8px;font-weight:600}
 
-/* 라디오 버튼 */
-.radio label{display:inline-flex;align-items:center;font-weight:700;font-size:19px;margin-right:24px;cursor:pointer}
-.radio input{width:22px;height:22px;margin-right:8px;cursor:pointer}
+/* 라디오 버튼 모바일 최적화 개선 */
+.radio-group {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.radio-group label {
+  display: inline-flex;
+  align-items: center;
+  font-weight: 700;
+  font-size: 19px;
+  margin: 0;
+  padding: 8px 12px;
+  background: #f8f9fa;
+  border: 2px solid #777;
+  border-radius: 10px;
+  cursor: pointer;
+  flex: 1;
+  justify-content: center;
+  min-width: 90px;
+}
+.radio-group input {
+  width: 22px;
+  height: 22px;
+  margin-right: 8px;
+  cursor: pointer;
+}
 
 /* 달력 스타일 */
 .cal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;font-weight:900;font-size:22px}
@@ -128,10 +153,15 @@ textarea{min-height:110px;resize:vertical}
 </div>
 <div class="field"><label>농지 주소</label><input id="address" placeholder="도로명 주소 또는 지번 주소를 입력하세요"></div>
 <div class="field"><label>작업 내용</label><textarea id="work" placeholder="예: 사과 적과 및 수확, 포장 작업"></textarea></div>
-<div class="field radio"><label>선호 성별</label>
-<label><input type="radio" name="gender" value="남성"> 남성</label>
-<label><input type="radio" name="gender" value="여성"> 여성</label>
-<label><input type="radio" name="gender" value="무관" checked> 무관</label></div>
+
+<div class="field">
+  <label>선호 성별</label>
+  <div class="radio-group">
+    <label><input type="radio" name="gender" value="남성"> 남성</label>
+    <label><input type="radio" name="gender" value="여성"> 여성</label>
+    <label><input type="radio" name="gender" value="무관" checked> 무관</label>
+  </div>
+</div>
 
 <div class="field"><label>선호 근로자 <span class="hint">(이미 배정된 근로자는 선택할 수 없습니다.)</span></label>
 <div id="workers" class="worker-grid"></div></div>
