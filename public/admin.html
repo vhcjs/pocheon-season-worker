@@ -91,7 +91,6 @@ label{display:block;font-weight:700;margin:0 0 8px}.field{margin-bottom:17px} in
 .invoice-table{width:100%;border-collapse:collapse;min-width:600px;}
 .invoice-table th,.invoice-table td{border:1px solid #ddd;padding:10px;text-align:center;font-size:14px;white-space:nowrap;}
 
-.login-box{background:#fff;padding:30px;border-radius:12px;width:90%;max-width:380px;text-align:center;box-shadow:0 10px 25px rgba(0,0,0,0.3)}
 .filter-row {display:flex;gap:10px;align-items:center;margin-bottom:15px;background:#f8f9fa;padding:12px;border-radius:8px;border:1px solid #ddd;font-size:14px;flex-wrap:wrap;}
 .filter-row select {width:auto;padding:8px;border-radius:6px;border:1px solid #ccc;font-size:14px;}
 
@@ -431,16 +430,13 @@ async function renderAdmin() {
         }
         
         if (!isNaN(dateObj.getTime())) {
-          // KST 한국 시간대 기준으로 강제 포맷팅 적용
           const realKstDate = new Date(dateObj.toLocaleString('en-US', { timeZone: 'Asia/Seoul' }));
-          
           let yyyy = realKstDate.getFullYear();
           let mm = String(realKstDate.getMonth() + 1).padStart(2, '0');
           let dd = String(realKstDate.getDate()).padStart(2, '0');
           let hh = String(realKstDate.getHours()).padStart(2, '0');
           let min = String(realKstDate.getMinutes()).padStart(2, '0');
           
-          // 만약 위 변환이 브라우저 환경에 따라 오인식될 경우를 대비한 UTC+9 직접 보정 로직 보완
           if (isNaN(yyyy) || yyyy < 2020) {
             const utcMs = dateObj.getTime();
             const kstTime = new Date(utcMs + (9 * 60 * 60 * 1000));
@@ -450,7 +446,6 @@ async function renderAdmin() {
             hh = String(kstTime.getUTCHours()).padStart(2, '0');
             min = String(kstTime.getUTCMinutes()).padStart(2, '0');
           }
-
           createdAtStr = `${yyyy}-${mm}-${dd} ${hh}:${min}`;
         }
       }
@@ -934,22 +929,38 @@ async function exportCombinedExcel() {
   XLSX.writeFile(wb, `포천시_계절근로자_통합정산.xlsx`);
 }
 
+// ✨ [수정된 부분] 엑셀 업로드 시 영문 컬럼명 및 성별('남성'/'여성') 완벽 변환 반영
 function handleExcelUpload(e) {
   const file = e.target.files[0];
   if (!file) return;
   const reader = new FileReader();
+  
   reader.onload = async function(evt) {
-    const wb = XLSX.read(new Uint8Array(evt.target.result), {type: 'array'});
-    const rows = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]]);
-    
-    let newWorkers = rows.map((r, i) => ({ 
-      id: `W${String(i+1).padStart(3, '0')}`, 
-      name: r['근로자명'] || r['이름'] || r['성명'] || '미상', 
-      callName: r['콜네임'] || r['호칭'] || r['별명'] || '', 
-      gender: r['성별'] || r['Gender'] || '남' 
-    }));
-    
-    if(newWorkers.length > 0) { 
+    try {
+      const wb = XLSX.read(new Uint8Array(evt.target.result), {type: 'array'});
+      const rows = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]]);
+      
+      let newWorkers = rows.map((r, i) => {
+        // 성별 값을 정밀하게 읽어서 '남성' 또는 '여성'으로 변환
+        const rawGender = String(r['gender'] || r['성별'] || '남').trim().toUpperCase();
+        let convertedGender = '남성';
+        if (rawGender === 'F' || rawGender === '여' || rawGender === '여성' || rawGender === 'FEMALE') {
+          convertedGender = '여성';
+        }
+
+        return { 
+          id: r['id'] || `W${String(i+1).padStart(3, '0')}`, 
+          name: r['name'] || r['근로자명'] || r['이름'] || r['성명'] || '미상', 
+          callName: r['callName'] || r['콜네임'] || r['호칭'] || r['별명'] || '', 
+          gender: convertedGender 
+        };
+      });
+      
+      if(newWorkers.length === 0) {
+        alert('엑셀 파일에서 유효한 근로자 데이터를 찾을 수 없습니다.');
+        return;
+      }
+
       saveWorkerList(newWorkers); 
 
       try {
@@ -961,6 +972,11 @@ function handleExcelUpload(e) {
 
       renderAdmin(); 
       alert(`${newWorkers.length}명의 근로자 명단이 성공적으로 DB에 등록되어 동기화되었습니다.`); 
+    } catch (err) {
+      console.error('엑셀 파일 처리 중 오류:', err);
+      alert('엑셀 파일을 읽는 중 오류가 발생했습니다.');
+    } finally {
+      e.target.value = '';
     }
   };
   reader.readAsArrayBuffer(file);
